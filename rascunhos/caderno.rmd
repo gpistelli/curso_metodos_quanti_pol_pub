@@ -1,4 +1,4 @@
-Todo modelo é uma versão simplificada de um fenômeno, a partir da abstração de determinadas relações e manifestações particulares. Assim, o modelo representa elementos gerais desse fenômeno, sem se estender necessariamente a todos os casos individuais ao qual se refere. Presumir isso seria a chamada `falácia ecológica`. Nessa mesma medida, existe a famosa afirmação de Box: "todos os modelos estão errados, mas alguns são úteis".
+Todo modelo é uma versão simplificada de um fenômeno, a partir da abstração de determinadas relações e manifestações particulares. Assim, o modelo representa elementos gerais desse fenômeno, sem estender os valores observados em agregados necessariamente a todos os casos individuais ao qual se refere. Presumir isso seria a chamada `falácia ecológica`: propriedades observadas em unidades agregadas não se extendem a todos os indivíduos. Nessa mesma medida, existe a famosa afirmação de Box: "todos os modelos estão errados, mas alguns são úteis".
 
 Contudo, existem outras dimensões da diferença entre modelo e realidade. Mais especificamente, McElreath chama os modelos de "Golems":
 
@@ -22,5 +22,5 @@ A `descrição` é a tarefa que menos exige: basta possuir um agregado de dados,
 
 Essa tarefa, contudo, não pode ser realizada se esses dados não são representativos do objeto analisado (por exemplo, se queremos falar de vendas do Brasil, não podemos incluir dados da França) e se não são apropriadamente comparáveis e/ou mensuráveis (não podemos contar, em um momento, utilizar padrões diferentes de mensuração).
 
-Assim, é comum falar que variáveis em uma base de dados precisam ser mutuamente excludentes: elas devem medir propriedades distintas, ainda que, de fato, elas possam possuir relações entre si. Por exemplo, nada impede de termos o valor total de vendas e as vendas por produtos, mas essas variáveis não podem se misturar na mesma dimensão).
+Assim, é comum falar que variáveis em uma base de dados precisam ser mutuamente excludentes: elas devem medir propriedades distintas, ainda que, de fato, elas possam possuir relações entre si e inclusive se sobrepor. Por exemplo, nada impede de termos o valor total de vendas e as vendas por produtos específicos, mas essas variáveis não podem ser representadas cojuntamente na mesma dimensão.
 
