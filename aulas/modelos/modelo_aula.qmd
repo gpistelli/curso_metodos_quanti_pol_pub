@@ -1,0 +1,56 @@
+---
+title: "Aula XX — Título da aula"
+subtitle: "Curso de Métodos para Políticas Públicas"
+date: "2026-11-02"
+lang: pt-BR
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Objetivos de aprendizagem
+
+Descrever 5 a 8 objetivos observáveis.
+
+# Problema substantivo e objeto de inferência
+
+Indicar população-alvo, unidade de análise, estimando e limites de interpretação.
+
+# Fundamentos e equações
+
+Definir cada símbolo, hipótese e relação matemática passo a passo.
+
+# Exemplo numérico resolvido
+
+Explicitar dados ilustrativos, cálculos intermediários e interpretação.
+
+# Laboratório em R
+
+```{r}
+set.seed(20261102)
+amostra <- rbinom(100, size = 1, prob = 0.4)
+mean(amostra)
+```
+
+# Leituras verificadas na biblioteca
+
+Informar autor, obra, capítulo/seção e por que a leitura importa.
+
+# Atividades para o dia seguinte
+
+Definir sessões de 60 minutos, exercícios, leituras e entrega.
+
+# Limitações e relação com as demais aulas
+
+Registrar limites de generalização, interpretação causal e dados.
+
+# Ambiente de execução
+
+```{r}
+sessionInfo()
+```

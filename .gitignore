@@ -1,0 +1,22 @@
+# Dados originais e artefatos pesados
+/dados/originais/*
+!/dados/originais/.gitkeep
+/dados/cache/
+/dados/temporarios/
+*.RData
+*.Rhistory
+.Rproj.user/
+.Ruserdata
+# Quarto/R Markdown
+.quarto/
+_site/
+*_files/
+*.html
+*.pdf
+# Dependências locais (não ignorar renv.lock quando realmente gerado)
+renv/library/
+renv/staging/
+renv/python/
+.Renviron
+.env
+.DS_Store

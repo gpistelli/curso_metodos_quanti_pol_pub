@@ -1,0 +1,10 @@
+---
+title: "Resoluções comentadas — Aula XX"
+lang: pt-BR
+format: html
+---
+
+# Soluções comentadas
+
+Para cada exercício, apresentar: raciocínio, cálculo, código R,
+interpretação substantiva e limites da conclusão.

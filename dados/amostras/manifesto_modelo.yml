@@ -1,0 +1,23 @@
+dataset:
+  nome: "preencher"
+  versao: "0.1.0"
+  tipo: "amostra_didatica"
+fonte:
+  instituicao: "preencher"
+  pesquisa: "preencher"
+  periodo: "preencher"
+  url_oficial: "preencher"
+  data_acesso: null
+  versao_arquivo: null
+amostragem:
+  metodo: "preencher"
+  semente: null
+  unidade_selecao: "preencher"
+  tamanho: null
+  adequada_inferencia_populacional: false
+processamento:
+  script_documentado: "preencher"
+  versao_r: "preencher"
+integridade:
+  algoritmo: "SHA-256"
+  hash_amostra: null
