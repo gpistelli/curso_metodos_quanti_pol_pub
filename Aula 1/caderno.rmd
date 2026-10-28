@@ -1,0 +1,26 @@
+Todo modelo é uma versão simplificada de um fenômeno, a partir da abstração de determinadas relações e manifestações particulares. Assim, o modelo representa elementos gerais desse fenômeno, sem se estender necessariamente a todos os casos individuais ao qual se refere. Presumir isso seria a chamada `falácia ecológica`. Nessa mesma medida, existe a famosa afirmação de Box: "todos os modelos estão errados, mas alguns são úteis".
+
+Contudo, existem outras dimensões da diferença entre modelo e realidade. Mais especificamente, McElreath chama os modelos de "Golems":
+
+> However, there is no wisdom in the golem. It doesn’t discern when the context is inappropriate for its answers. It just knows its own procedure, nothing else. It just does as it’s told.
+
+O autor assim os chama pois eles são restritos às suas premissas e ordens internas (lógica), o que amplifica potenciais problemas quando utilizados de forma irresponsável ou sem considerar seus limites^Sobre isso, por exemplo, cheque ONEIL. Weapons of Math Destruction.
+
+Por isso, os modelos se associam à sua função, podendo-se destacar quatro tipos de uso:
+
+- 1) Descrição
+
+- 2) Associação 
+
+- 3) Predição
+
+- 4) Causalidade
+
+Em cada uma delas, usaremos cálculos diferentes, com maior ou menor complexidade, que demandam, por sua vez, tipos específicos de dados à nossa disposição.
+
+A `descrição` é a tarefa que menos exige: basta possuir um agregado de dados, ou, sendo mais preciso, informações repetidas em uma variável referente ao mesmo fenômeno regularmente observado (ex., idade de pessoas, textos escritos, valores ou quantidades de vendas de produtos, etc.), que podemos realizar esse procedimento.
+
+Essa tarefa, contudo, não pode ser realizada se esses dados não são representativos do objeto analisado (por exemplo, se queremos falar de vendas do Brasil, não podemos incluir dados da França) e se não são apropriadamente comparáveis e/ou mensuráveis (não podemos contar, em um momento, utilizar padrões diferentes de mensuração).
+
+Assim, é comum falar que variáveis em uma base de dados precisam ser mutuamente excludentes: elas devem medir propriedades distintas, ainda que, de fato, elas possam possuir relações entre si. Por exemplo, nada impede de termos o valor total de vendas e as vendas por produtos, mas essas variáveis não podem se misturar na mesma dimensão).
+
