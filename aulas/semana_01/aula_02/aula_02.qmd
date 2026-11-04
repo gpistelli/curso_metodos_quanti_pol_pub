@@ -1,0 +1,217 @@
+---
+title: "Aula 02/18 — Matemática e probabilidade"
+subtitle: "Funções, matrizes, condicionamento e teorema de Bayes"
+date: "2026-11-04"
+lang: pt-BR
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Motivação: da pergunta científica à linguagem formal
+
+Na primeira aula definimos perguntas, unidades, indicadores e estimandos. Agora aprenderemos a linguagem que permite explicitar as relações entre variáveis, representar muitos dados de uma só vez e atualizar probabilidades quando surge informação. Imagine uma pesquisa sobre instrumentos da Nova Indústria Brasil (NIB) e inclusão no emprego. Podemos descrever como a proporção de vínculos formais varia com o investimento industrial; representar informações de vários territórios em matrizes; e calcular a probabilidade de determinada característica entre trabalhadores de empresas beneficiárias. Nada disso, isoladamente, identifica o efeito causal da política.
+
+O mesmo vale para tecnologias assistivas: a probabilidade de emprego condicionada ao acesso a um dispositivo não equivale ao efeito de fornecê-lo. A matemática ajuda a escrever o problema com precisão, mas não resolve automaticamente seleção, confundimento e qualidade dos dados.
+
+**Classificação dos procedimentos:** funções e matrizes são linguagens gerais; proporções e condicionamento aplicados a dados são **descritivos/associativos**; probabilidades para novas unidades podem ser **preditivas**; interpretações **causais** exigem desenho adicional; simulações com regras definidas são **simulações de mecanismos**, não evidência automática de efeitos reais.
+
+## Objetivos
+
+1. Definir domínio, contradomínio e imagem de funções e interpretar transformações lineares e não lineares.
+2. Calcular taxas e variações marginais, distinguindo associação matemática de mecanismo causal.
+3. Representar dados como vetores e matrizes, identificando dimensões e produtos válidos.
+4. Calcular probabilidades marginais, conjuntas e condicionais.
+5. Diferenciar independência estatística de independência causal.
+6. Aplicar a regra da probabilidade total e o teorema de Bayes, interpretando taxas-base.
+7. Reproduzir os cálculos em R sobre uma amostra didática documentada e propor uma aplicação ao projeto integrador.
+
+# 1. Funções: como representar relações
+
+Uma **função** \(f:A\to B\) associa a cada elemento \(x\) de um domínio \(A\) exatamente um elemento \(f(x)\) no contradomínio \(B\). A imagem é o subconjunto de valores efetivamente atingidos. Exemplo: \(f(x)=x/100\), com \(x\in\{0,\ldots,100\}\), converte uma contagem de vínculos formais, entre cem ocupados, em uma proporção entre zero e um. É necessário definir o denominador e assegurar que \(0\leq x\leq100\).
+
+Uma função afim pode ser escrita \(f(x)=\alpha+\beta x\). Aqui \(\alpha\) é o intercepto (valor previsto quando \(x=0\)) e \(\beta\) é a variação de \(f\) por unidade de \(x\). Por exemplo, \(f(x)=50+2x\) representa uma regra hipotética que associa um índice \(x\) a 50+2x empregos. Se \(x=3\), \(f(3)=56\). Isso **não** significa que elevar \(x\) por intervenção criaria dois empregos. A função pode ser uma aproximação descritiva, não uma lei causal.
+
+Para fenômenos limitados entre zero e um, funções não lineares são úteis. A função logística é \(g(z)=1/(1+e^{-z})\), onde \(e\) é a base do logaritmo natural. Ela transforma qualquer número real \(z\) em valor estritamente entre zero e um: \(g(0)=0,5\), \(g(2)\approx0,881\). Na modelagem probabilística, podemos escrever \(P(Y=1\mid X=x)=g(\alpha+\beta x)\), sob um modelo especificado. A forma logística não garante calibração nem causalidade.
+
+A **composição** \(h(x)=g(f(x))\) aplica primeiro \(f\), depois \(g\). A **derivada** \(f'(x)=\lim_{h\to0}[f(x+h)-f(x)]/h\), quando existe, expressa a variação marginal. Para \(f(x)=50+2x\), \(f'(x)=2\). Para \(g(z)\), \(g'(z)=g(z)[1-g(z)]\): o mesmo incremento em \(z\) produz mudanças distintas na escala da probabilidade, conforme seu nível inicial. O cálculo da derivada é matemático; sua interpretação substantiva depende do significado de \(x\) e da validade do modelo.
+
+# 2. Vetores e matrizes
+
+Um **vetor coluna** \(\mathbf y=(y_1,\ldots,y_n)^\top\) organiza \(n\) observações de uma variável; \(\top\) indica transposição. Uma **matriz** \(\mathbf X\in\mathbb R^{n\times k}\) contém \(n\) linhas (unidades) e \(k\) colunas (variáveis). Por exemplo, quatro territórios e duas características, uma constante e um índice de investimento:
+
+\[
+\mathbf X=\begin{bmatrix}1&1\\1&2\\1&3\\1&4\end{bmatrix},
+\qquad
+\boldsymbol\beta=\begin{bmatrix}50\\2\end{bmatrix}.
+\]
+
+O produto \(\mathbf X\boldsymbol\beta\) é definido porque as dimensões internas coincidem: \((4\times2)(2\times1)=(4\times1)\). Cada linha realiza um produto escalar, de modo que
+
+\[
+\mathbf X\boldsymbol\beta=
+\begin{bmatrix}52\\54\\56\\58\end{bmatrix}.
+\]
+
+Esses números são valores calculados de uma função hipotética, não estimativas obtidas dos dados. Em notação geral, \(\hat{\mathbf y}=\mathbf X\hat{\boldsymbol\beta}\) representará valores ajustados por um modelo; o símbolo \(\hat{}\) denota estimativa. Mais adiante, a regressão OLS usa \(\hat{\boldsymbol\beta}=(\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y\), **se** \(\mathbf X\) tiver posto completo de colunas e a inversa existir. Hoje interessa compreender as dimensões, não demonstrar ou estimar OLS.
+
+A transposta troca linhas por colunas. A multiplicação matricial não é, em geral, comutativa: \(\mathbf A\mathbf B\) pode ser diferente de \(\mathbf B\mathbf A\), ou um deles pode nem estar definido. Não confunda multiplicação matricial (\`%*%\` em R) com multiplicação elemento a elemento (\`*\`).
+
+Para um estudo sobre inclusão, as colunas de \(\mathbf X\) poderiam conter formalização, renda e participação de PcD, mas seria preciso documentar unidades, escalas e ausências. Uma matriz tecnicamente válida pode incorporar indicadores conceitualmente ruins.
+
+# 3. Probabilidade como linguagem da incerteza
+
+Definimos um espaço amostral \(\Omega\), conjunto dos resultados possíveis de um experimento ou processo aleatório. Um **evento** \(A\subseteq\Omega\) é um subconjunto desses resultados. Uma probabilidade \(P(A)\) satisfaz: \(0\leq P(A)\leq1\), \(P(\Omega)=1\) e aditividade para eventos mutuamente exclusivos.
+
+Para eventos \(A\) e \(B\), a **probabilidade conjunta** \(P(A\cap B)\) expressa a chance de ambos ocorrerem; a **marginal** \(P(A)\) considera \(A\) sem condicionar em \(B\). A probabilidade da união é
+
+\[
+P(A\cup B)=P(A)+P(B)-P(A\cap B).
+\]
+
+Subtraímos a interseção porque foi contada duas vezes. Se \(A\) e \(B\) são mutuamente exclusivos, \(P(A\cap B)=0\); se são independentes, \(P(A\cap B)=P(A)P(B)\). **Exclusividade e independência são propriedades diferentes**: dois eventos não vazios e mutuamente exclusivos não são independentes.
+
+A **probabilidade condicional** é
+
+\[
+P(A\mid B)=\frac{P(A\cap B)}{P(B)},\qquad P(B)>0.
+\]
+
+Lemos \(P(A\mid B)\) como probabilidade de \(A\) dado \(B\). O denominador restringe o universo ao evento \(B\). Por exemplo, \(P(\text{formal}\mid\text{beneficiária})\) usa como denominador trabalhadores de empresas beneficiárias; \(P(\text{beneficiária}\mid\text{formal})\) usa trabalhadores formais. Em geral, são números diferentes.
+
+**Independência estatística** significa \(P(A\mid B)=P(A)\), quando \(P(B)>0\), ou equivalentemente \(P(A\cap B)=P(A)P(B)\). Essa propriedade não demonstra que duas variáveis sejam causalmente desconectadas: relações causais podem se cancelar em distribuições específicas, e associações podem surgir por causas comuns ou seleção.
+
+# 4. Probabilidade total e Bayes
+
+Suponha uma partição \(\{B_1,\ldots,B_m\}\): eventos mutuamente exclusivos, exaustivos, com probabilidades positivas. Pela **regra da probabilidade total**,
+
+\[
+P(A)=\sum_{j=1}^{m}P(A\mid B_j)P(B_j).
+\]
+
+Cada parcela pondera a probabilidade condicional pela frequência ou probabilidade do grupo. A regra é indispensável quando o risco de um evento difere entre grupos de tamanhos diferentes.
+
+Pela definição de condicional, \(P(A\cap B)=P(A\mid B)P(B)=P(B\mid A)P(A)\). Igualando as expressões e isolando \(P(B\mid A)\), obtemos
+
+\[
+\boxed{P(B\mid A)=\frac{P(A\mid B)P(B)}{P(A)}}.
+\]
+
+O numerador combina uma **probabilidade inicial** \(P(B)\) com a **verossimilhança do evento observado sob \(B\)**, \(P(A\mid B)\). O denominador normaliza o resultado. Para dois grupos, \(P(A)=P(A\mid B)P(B)+P(A\mid B^c)P(B^c)\), onde \(B^c\) é o complemento de \(B\).
+
+Esta atualização é uma identidade probabilística. Ela não deve ser confundida com a inferência bayesiana sobre parâmetros desconhecidos, que exigirá especificação de modelos e distribuições a priori na Aula 7. Também não converte automaticamente probabilidades observacionais em efeitos causais.
+
+# 5. Exemplo numérico completo: inclusão em empresas
+
+Considere **200 trabalhadores inteiramente fictícios**, dos quais 40 pertencem a empresas com determinado programa de apoio (\(B\)), e 160 não (\(B^c\)). Entre os primeiros, 30 possuem vínculo formal (\(F\)); entre os segundos, 80 são formais. Não se trata de dado sobre a NIB nem de amostra representativa.
+
+| Situação | Formal \(F\) | Não formal \(F^c\) | Total |
+|---|---:|---:|---:|
+| Programa \(B\) | 30 | 10 | 40 |
+| Sem programa \(B^c\) | 80 | 80 | 160 |
+| Total | 110 | 90 | 200 |
+
+Primeiro, \(P(B)=40/200=0,20\), \(P(F\mid B)=30/40=0,75\), \(P(F\mid B^c)=80/160=0,50\). Pela probabilidade total:
+
+\[
+P(F)=0,75(0,20)+0,50(0,80)=0,15+0,40=0,55.
+\]
+
+A pergunta invertida é: **entre os trabalhadores formais, qual a probabilidade de pertencerem ao grupo do programa?** Por Bayes,
+
+\[
+P(B\mid F)=\frac{0,75\times0,20}{0,55}
+=\frac{0,15}{0,55}\approx0,2727.
+\]
+
+A verificação direta pela tabela é \(30/110\approx27,27\%\). Embora 75% dos trabalhadores do grupo do programa sejam formais, apenas 27,27% dos trabalhadores formais pertencem a esse grupo: o grupo do programa representa só 20% do total. Essa é a importância da **taxa-base**.
+
+O contraste \(0,75-0,50=0,25\), ou 25 pontos percentuais, é **descritivo/associativo**, não efeito causal. Empresas beneficiárias podem ser diferentes das não beneficiárias antes do programa. Se o programa estivesse relacionado à qualidade do emprego, seria preciso definir intervenção, elegibilidade, horizonte temporal, população-alvo e estratégia de identificação.
+
+# 6. Laboratório em R (somente base R)
+
+O CSV didático versionado contém as quatro células da tabela; não exige baixar bases externas. Execute na raiz do repositório.
+
+\`\`\`{r}
+dados <- read.csv("dados/amostras/aula_02/tabela_ficticia.csv",
+                  stringsAsFactors = FALSE)
+stopifnot(all(dados$n >= 0), sum(dados$n) == 200)
+tab <- xtabs(n ~ programa + formal, data = dados)
+print(tab)
+
+n_total <- sum(tab)
+p_b <- sum(tab["sim", ]) / n_total
+p_f_b <- tab["sim", "sim"] / sum(tab["sim", ])
+p_f_naob <- tab["nao", "sim"] / sum(tab["nao", ])
+p_f <- p_f_b * p_b + p_f_naob * (1 - p_b)
+p_b_f <- p_f_b * p_b / p_f
+stopifnot(isTRUE(all.equal(unname(p_b_f), 30 / 110)))
+print(c(P_programa = p_b, P_formal = p_f,
+        P_programa_dado_formal = p_b_f))
+
+X <- cbind(intercepto = 1, indice = 1:4)
+beta <- c(50, 2)
+print(X %*% beta)
+stopifnot(identical(as.numeric(X %*% beta), c(52,54,56,58)))
+plogis(c(0, 2))
+sessionInfo()
+\`\`\`
+
+\`xtabs()\` constrói uma tabela de contingência ponderada pelas contagens \`n\`. \`sum(tab["sim", ])\` recupera o denominador do grupo do programa; \`tab["sim","sim"]\` recupera a interseção. \`%*%\` multiplica matrizes; \`plogis()\` implementa a função logística de modo numericamente estável. Os \`stopifnot()\` interrompem a execução se a integridade ou os resultados esperados falharem. Não há sorteio na análise; o script opcional de preparação usa semente fixa e permanece separado.
+
+**Erros frequentes:** inverter \(P(A\mid B)\) e \(P(B\mid A)\); ignorar taxas-base; confundir independência e exclusividade; interpretar probabilidades condicionais como efeitos de intervenção; multiplicar matrizes com dimensões incompatíveis; interpretar uma transformação matemática como descoberta empírica.
+
+# 7. Estudo crítico: classificação de projetos e missões industriais
+
+Imagine um classificador de textos que identifica projetos alinhados às missões da NIB. Se 80% dos textos realmente alinhados são classificados como positivos (sensibilidade) e 90% dos não alinhados como negativos (especificidade), o que significa um resultado positivo? Sem a proporção inicial de projetos alinhados, a pergunta não tem resposta única. Se apenas 10% forem alinhados, o valor preditivo positivo será \(0,80(0,10)/[0,80(0,10)+0,10(0,90)]\approx47,06\%\).
+
+Mesmo um classificador com sensibilidade e especificidade razoáveis pode gerar muitos falsos positivos quando a condição é rara. Mais importante: **alinhamento textual** não equivale a financiamento recebido, implementação efetiva, inovação adicional ou efeito sobre emprego. A validação exigiria rótulos confiáveis e análise da população de aplicação. Para estudar causalidade, seriam necessários dados sobre intervenções e resultados, além de uma estratégia de identificação.
+
+# 8. Exercícios graduais
+
+1. **Funções:** para \(f(x)=40+3x\), calcule \(f(5)\), \(f'(x)\) e interprete o que seria incorreto afirmar sobre efeito causal.
+2. **Matrizes:** determine as dimensões de \(\mathbf X\) e \(\boldsymbol\beta\) do exemplo; calcule a terceira linha de \(\mathbf X\boldsymbol\beta\). Explique por que \(\boldsymbol\beta\mathbf X\) não está definido.
+3. **Conjunta e condicional:** com a tabela fictícia, calcule \(P(F\cap B)\), \(P(F\mid B)\), \(P(B\mid F)\) e \(P(F\cup B)\).
+4. **Independência:** \(F\) e \(B\) são independentes? Verifique duas formas equivalentes.
+5. **Bayes e taxa-base:** se a prevalência de alinhamento textual for 5%, a sensibilidade 90% e a especificidade 95%, calcule \(P(\text{alinhado}\mid\text{positivo})\).
+6. **Pesquisa:** defina uma probabilidade condicional relevante para o projeto integrador e explique por que ela não identifica efeito causal. Especifique unidade, numerador, denominador e possível viés de seleção.
+
+As resoluções integrais estão em \`resolucoes_02.qmd\`, incluindo cálculos e interpretações.
+
+# 9. Estudo em blocos de 60 minutos
+
+## Quarta-feira, 04/11 — 3 horas + 1 opcional
+
+- **Bloco 1:** ler seções 1 e 2; escrever domínio e imagem de três funções relevantes ao projeto; refazer o produto matricial.
+- **Bloco 2:** ler seções 3 e 4; deduzir condicional, probabilidade total e Bayes sem consultar o texto.
+- **Bloco 3:** resolver o exemplo numérico e executar \`exercicios_02.R\`; conferir resultados e registrar dúvidas.
+- **Bloco opcional:** Moore e Siegel, cap. 3, seções 3.1–3.2, e cap. 12, seções 12.1–12.3.
+
+## Quinta-feira, 05/11 — 3 horas + 1 opcional
+
+- **Bloco 1:** resolver exercícios 1–3 sem gabarito e depois comparar com as soluções.
+- **Bloco 2:** resolver exercícios 4–5 e reescrever a interpretação do exemplo de classificação.
+- **Bloco 3:** exercício 6 e entrega reproduzível: um arquivo \`projeto_integrador/semana_01/protocolo_probabilidade.md\` com pergunta, eventos, condicionamento, fórmula, denominadores e limitações.
+- **Bloco opcional:** Imai, cap. 6, seções 6.1–6.2; Jaynes, cap. 2, seções 2.1–2.2.
+
+**Domingo livre.** A próxima aula, em 06/11, abordará amostragem e inferência, usando as probabilidades e os estimandos agora formalizados.
+
+# 10. Leituras confirmadas e bibliografia
+
+- Moore, Will H.; Siegel, David A. *A Mathematics Course for Political and Social Research*: cap. 3, seções 3.1–3.2 (funções); cap. 9, seções 9.1–9.2 (probabilidade); cap. 12, seções 12.1–12.3 (vetores e matrizes).
+- Imai, Kosuke. *Quantitative Social Science: An Introduction*: cap. 6, seções 6.1 e 6.2, especialmente 6.2.1–6.2.3 (marginal, conjunta, independência e Bayes).
+- Morettin, Pedro A.; Bussab, Wilton de O. *Estatística Básica*: cap. 5, seção 5.4 (teorema de Bayes).
+- Jaynes, E. T. *Probability Theory: The Logic of Science*: cap. 2, seções 2.1–2.2 (regras do produto e da soma).
+
+Os títulos e capítulos foram verificados nos arquivos da biblioteca do projeto; não é necessário copiar os PDFs protegidos para o GitHub.
+
+# 11. Entrega cumulativa e conexões
+
+A entrega é uma **nota matemática de uma página** para o projeto final, contendo duas funções de interesse, um vetor de resultados, uma matriz de covariáveis, um evento condicional com denominador explícito e um parágrafo sobre validade. A versão alternativa pode focalizar acesso a tecnologias assistivas e inclusão laboral de PcD. O exercício é formal, não exige microdados completos e não produz inferência populacional.
+
+**Retomada da Aula 1:** definimos construtos e estimandos; agora escrevemos suas relações matematicamente. **Preparação da Aula 3:** a partir de amostras e modelos probabilísticos, investigaremos estimadores, incerteza e verossimilhança. Não confundir a probabilidade de uma observação, a probabilidade de uma hipótese e a probabilidade de um resultado sob intervenção.
