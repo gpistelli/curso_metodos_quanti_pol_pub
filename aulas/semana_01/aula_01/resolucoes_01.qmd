@@ -1,0 +1,65 @@
+---
+title: "Aula 01 — Resoluções comentadas"
+date: "2026-11-02"
+lang: pt-BR
+format:
+  html:
+    toc: true
+    number-sections: true
+---
+
+# Exercício 1 — Finalidade analítica
+
+(a) **Descrição:** caracterizar a taxa de formalização em 2025, com população, período e definição de formalidade explícitos. (b) **Predição:** prever desligamentos em 2027 exige separar treino e avaliação temporal, evitando vazamento de informação futura. (c) **Causalidade:** "efeito da concessão de crédito" requer definir o crédito, elegibilidade, desfecho, horizonte e estratégia contrafactual. (d) **Simulação de mecanismos:** regras de contratação e difusão tecnológica em modelo baseado em agentes podem gerar resultados agregados; isso não demonstra que as regras sejam os mecanismos reais.
+
+**Armadilha:** classificar a pesquisa pelo algoritmo. Uma regressão pode atender a diferentes finalidades.
+
+# Exercício 2 — Unidade, numerador e denominador
+
+A participação de PcD entre ocupados é \(Q=O_{\mathrm{PcD}}/O_{\mathrm{total}}\): fração dos postos ocupados por PcD. O nível de ocupação das PcD é \(L=O_{\mathrm{PcD}}/P_{\mathrm{PcD,14+}}\), com população PcD de 14 anos ou mais no denominador, segundo a definição da PNAD Contínua. A primeira razão pode aumentar porque a ocupação de não PcD diminuiu; não implica que a probabilidade de ocupação de PcD aumentou.
+
+**Armadilha:** usar \`pcd_ocupados/ocupados\` para afirmar nível de ocupação das PcD. Faltaria o denominador populacional específico.
+
+# Exercício 3 — Cálculo e escalas
+
+Grupo alto: \(70+80+75+85=310\) formais, de \(400\) ocupados. Logo \(p_a=310/400=0{,}775\). Grupo baixo: \(60+65+55+70=250\) formais, de \(400\) ocupados. Logo \(p_b=250/400=0{,}625\).
+
+Diferença absoluta: \(0{,}775-0{,}625=0{,}15=15\) **pontos percentuais**.
+
+Diferença relativa: \(0{,}775/0{,}625-1=0{,}24=24\%\). A primeira usa escala de pontos percentuais; a segunda expressa o acréscimo proporcional em relação ao grupo baixo.
+
+Nenhuma delas é estimativa causal. Não há desenho amostral nem população inferencial para intervalos de confiança. Os oito territórios são fictícios.
+
+# Exercício 4 — Indicadores de qualidade do emprego
+
+Um conjunto possível é:
+
+1. **Formalização:** contratos formais / ocupados. Capta uma dimensão de proteção contratual; não mede salários, segurança ou acessibilidade.
+2. **Rendimento real habitual médio:** média em reais constantes entre ocupados com rendimento informado. Depende de deflator, cobertura, tratamento de extremos e faltantes.
+3. **Rotatividade:** desligamentos em um período / estoque médio de vínculos, com regras explícitas. A rotatividade pode refletir precariedade ou mobilidade voluntária; depende da fonte e da definição.
+
+Outras respostas são admissíveis se justificarem unidade, conceito, cobertura e limitações. Não é necessário forçar um índice sintético nesta aula.
+
+# Exercício 5 — Por que associação não identifica impacto?
+
+Uma correlação positiva entre crédito recebido e salários pode decorrer de: (i) **seleção** de firmas maiores e mais produtivas; (ii) **composição setorial**, se setores de alta remuneração recebem mais recursos; (iii) **tendências anteriores**, com salários crescendo antes do apoio; (iv) políticas simultâneas ou choques regionais; (v) sobrevivência seletiva e erro de mensuração.
+
+Caminho inicial: especificar um instrumento de crédito, identificar elegíveis, registrar momento de concessão, construir uma população comparável, verificar tendências e hipóteses de identificação e definir desfecho e horizonte. Técnicas como diferenças em diferenças serão estudadas na Aula 6. Não se deve apresentar a técnica como solução automática para o viés de seleção.
+
+# Exercício 6 — Protocolo de pesquisa cumulativo
+
+**Pergunta descritiva:** "Entre os estabelecimentos industriais brasileiros observáveis no período de 2024–2026, como varia a proporção de vínculos formais em setores associados às missões da NIB?" População: estabelecimentos definidos pela cobertura da fonte; unidade: estabelecimento; exposição: classificação setorial justificada; desfecho: razão de vínculos formais; limitação: cobertura e seleção, além de não haver efeito causal.
+
+**Pergunta causal candidata:** "Qual o efeito da concessão de uma linha específica de financiamento da NIB sobre o emprego formal de estabelecimentos elegíveis, dois anos após a concessão?" População: estabelecimentos elegíveis; unidade: estabelecimento; intervenção: linha e regra de concessão definidas; desfecho: estoque ou variação de vínculos; estimando: efeito médio em população explicitada; ameaça: seleção por desempenho, capacidade de pleitear recursos e choques concomitantes. Necessário verificar se os dados e as regras institucionais permitem identificação.
+
+**Alternativa PcD/tecnologias assistivas:** "Qual o efeito da oferta de um serviço de avaliação, fornecimento e acompanhamento de tecnologia assistiva sobre permanência no emprego entre trabalhadores elegíveis?" A intervenção é um serviço definido, não "ser PcD". Necessário estabelecer acessibilidade, consentimento, elegibilidade, horizonte e desfechos.
+
+# Conferência computacional
+
+Executar a partir da raiz:
+
+~~~bash
+Rscript aulas/semana_01/aula_01/exercicios_01.R
+~~~
+
+Saída esperada: formalização de 77,5% no grupo alto e 62,5% no baixo; contraste de 15 pontos percentuais; diferença relativa de 24%; participação de PcD entre ocupados de 7,5% e 4,5%, respectivamente. **Dados inventados, sem inferência populacional.**

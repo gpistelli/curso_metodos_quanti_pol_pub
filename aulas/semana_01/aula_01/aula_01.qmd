@@ -1,0 +1,251 @@
+---
+title: "Aula 01/18 — Epistemologia e desenho de pesquisa"
+subtitle: "Perguntas, estimandos, indicadores e validade"
+date: "2026-11-02"
+lang: pt-BR
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Por que começar pelo desenho, e não pela regressão?
+
+Imagine uma pesquisa sobre a **Nova Indústria Brasil (NIB)**. Uma formulação inicial seria: "a política industrial melhora o emprego?". Ela parece objetiva, mas esconde decisões essenciais. Melhorar significa criar mais postos, elevar rendimentos, reduzir informalidade, ampliar a presença de pessoas com deficiência (PcD), aumentar estabilidade ou diminuir acidentes? A política é um conjunto de instrumentos: crédito, subvenção, compras públicas, coordenação setorial e missões. Quais deles serão examinados? Em quais unidades, localidades e períodos?
+
+A NIB organiza seis missões até 2033 e incorpora entre seus princípios trabalho decente, inclusão socioeconômica, equidade e produtividade. Isso fornece **motivação institucional**, não demonstra que a política já produziu os resultados desejados. Fonte oficial: [CNDI/MDIC](https://www.gov.br/mdic/pt-br/composicao/se/cndi).
+
+Nossa tarefa hoje é converter uma preocupação substantiva em um objeto de pesquisa inteligível, mensurável e criticável. O procedimento estatístico virá depois. Uma boa especificação do estimando frequentemente é mais decisiva que a sofisticação do algoritmo.
+
+**Status das evidências:** as informações institucionais citadas são documentais; a amostra do laboratório é **inteiramente fictícia**. Não produzimos estimativas sobre o Brasil a partir dela.
+
+# Objetivos de aprendizagem
+
+Ao concluir as atividades de hoje e de amanhã, você deverá conseguir:
+
+1. Distinguir problema público, pergunta de pesquisa, hipótese, modelo, estimando e estimador.
+2. Diferenciar objetivos **descritivos**, **associativos**, **preditivos**, **causais** e de **simulação de mecanismos**.
+3. Definir população-alvo, unidade de análise, período, exposição, desfecho e contraste.
+4. Operacionalizar construtos como "qualidade do emprego" e "inclusão" em indicadores verificáveis.
+5. Explicar validade de construto, validade interna, validade externa e fontes de erro de mensuração.
+6. Calcular e interpretar um contraste descritivo sem convertê-lo indevidamente em efeito causal.
+7. Elaborar um protocolo reproduzível e registrar limites das evidências.
+
+# 1. Epistemologia aplicada: da realidade ao modelo
+
+Um **fenômeno** é aquilo que buscamos compreender: por exemplo, a desigualdade de inserção ocupacional de PcD. Um **conceito** organiza teoricamente esse fenômeno: inclusão laboral, segregação ocupacional ou qualidade do trabalho. Uma **hipótese** propõe uma relação passível de confronto com evidências, como "a adoção de tecnologias assistivas reduz barreiras de acesso a certas tarefas". Um **modelo** representa seletivamente relações, observações e incertezas. Uma **medida** torna observável alguma dimensão do conceito.
+
+Essas entidades não são intercambiáveis. A teoria pode sugerir mecanismos; o modelo formaliza parte deles; os dados são registros produzidos por processos institucionais de coleta e classificação. A discordância entre modelo e dados não determina automaticamente qual componente está equivocado.
+
+McElreath, no capítulo 1 de *Statistical Rethinking*, usa a metáfora dos "golems": procedimentos estatísticos seguem regras, mas não compreendem autonomamente a pertinência substantiva de seus resultados. O capítulo diferencia hipóteses, modelos e mensuração. O ponto metodológico é que **nenhum coeficiente conhece, por si só, a pergunta que o pesquisador pretendia responder**.
+
+É útil evitar dois extremos. O primeiro é o empirismo ingênuo: considerar indicadores como retratos diretos da realidade, sem decisões classificatórias. O segundo é o ceticismo radical: concluir que, por serem construídos, os indicadores não informam nada. Medidas podem ser imperfeitas e, ainda assim, úteis quando seus critérios, erros e limites são conhecidos.
+
+# 2. Cinco finalidades analíticas que não devem ser confundidas
+
+**Descrição.** "Qual é a proporção de trabalhadores formais entre os ocupados da indústria de determinado território em 2025?" Procura caracterizar uma distribuição. Pode exigir amostragem adequada e ponderação; não é automaticamente uma tarefa trivial.
+
+**Associação.** "Territórios com maior exposição a instrumentos industriais apresentam maior formalização?" Compara variáveis observadas. A diferença pode decorrer de características preexistentes, composição setorial, seleção ou mudanças simultâneas.
+
+**Predição.** "Dadas informações observadas até 2025, quais territórios terão maior probabilidade de crescimento do emprego formal em 2026?" O critério principal é o desempenho em observações não utilizadas no ajuste. Uma variável pode prever bem sem ser causa do desfecho.
+
+**Causalidade.** "Qual seria a diferença na formalização se territórios elegíveis recebessem determinado instrumento de apoio, comparada ao cenário em que não o recebessem?" Requer intervenção definida, contrafactual, estratégia de identificação e pressupostos explícitos.
+
+**Simulação de mecanismos.** "Que padrões agregados de emprego poderiam emergir se firmas e trabalhadores interagissem sob regras alternativas de contratação, qualificação e difusão tecnológica?" Uma simulação explicita mecanismos hipotéticos. Reproduzir padrões conhecidos não prova que os mecanismos simulados são verdadeiros.
+
+A classificação depende da **pergunta e do desenho**, não do nome do método. Uma regressão pode servir à descrição, à predição ou à estimação causal, mas só neste último caso, sob condições adicionais, sustenta interpretação de efeito. Da mesma forma, similaridade textual entre projetos e missões da NIB pode mensurar **alinhamento semântico**; não demonstra impacto, implementação ou adicionalidade.
+
+# 3. A anatomia de uma pergunta de pesquisa
+
+Uma formulação operacional deve especificar, no mínimo:
+
+- **População-alvo:** conjunto sobre o qual se deseja concluir. Exemplo: estabelecimentos industriais elegíveis a um programa, não "a indústria" indistintamente.
+- **Unidade de análise:** trabalhador, estabelecimento, município, setor ou projeto. Não misturar unidades sem justificar a agregação.
+- **Janela temporal:** ano de referência, coorte, período anterior/posterior e defasagens plausíveis.
+- **Exposição ou intervenção:** elegibilidade, concessão de crédito, valor contratado ou efetiva execução. São variáveis distintas.
+- **Desfecho:** formalização, rendimento, rotatividade, incidência de acidentes, participação de PcD etc.
+- **Contraste:** nível, diferença entre grupos, variação temporal ou efeito contrafactual.
+- **Contexto e fonte:** cobertura geográfica, regras de classificação, população observada e disponibilidade dos registros.
+
+Uma pergunta descritiva inicial para o projeto cumulativo seria: "Como variam os níveis de formalização entre territórios classificados, por critérios transparentes, em maior ou menor exposição a instrumentos de transformação produtiva?" Uma pergunta causal futura, diferente, seria: "Qual o efeito da concessão de um instrumento específico sobre a formalização nos estabelecimentos elegíveis, após um horizonte definido?" A segunda **não é respondida** pela primeira.
+
+# 4. Estimando, estimador e estimativa
+
+O **estimando** é a quantidade substantiva que queremos conhecer; o **estimador** é uma regra aplicada aos dados; a **estimativa** é o número obtido com essa regra em uma realização observada.
+
+Para um grupo de territórios \(g\), suponha que \(F_i\) seja o número de ocupados formais no território \(i\), \(O_i\) o número total de ocupados e \(G_i\) sua categoria de exposição. Uma razão agregada de formalização é:
+
+\[
+p_g=\frac{\sum_{i:G_i=g}F_i}{\sum_{i:G_i=g}O_i}.
+\]
+
+Aqui, \(i\) indexa territórios; \(g\) identifica um grupo; \(F_i\) e \(O_i\) são contagens, com \(0\leq F_i\leq O_i\). O numerador conta ocupados formais e o denominador todos os ocupados desses territórios. A razão pondera implicitamente cada território pelo seu total de ocupados: não equivale, em geral, à média simples das taxas municipais.
+
+O contraste descritivo é:
+
+\[
+\Delta_{\mathrm{desc}}=p_{\mathrm{alta}}-p_{\mathrm{baixa}}.
+\]
+
+Ele está na escala de proporções; multiplicar por 100 fornece **pontos percentuais**. A diferença entre 77,5% e 62,5% é de 15 pontos percentuais, e não de 15% em termos relativos. Uma variação percentual relativa usaria outro denominador.
+
+Para introduzir a pergunta causal, defina \(Y_i(1)\) como o resultado que o território \(i\) apresentaria sob uma intervenção claramente definida e \(Y_i(0)\) como o resultado sob sua ausência. Um efeito médio finito seria:
+
+\[
+\tau=\frac{1}{N}\sum_{i=1}^{N}\left[Y_i(1)-Y_i(0)\right].
+\]
+
+\(N\) é o número de unidades da população-alvo. Esse estimando atribui **peso igual a cada território**; se a pergunta for sobre trabalhadores, será necessário outro estimando e outra ponderação. Em geral, observamos apenas um resultado potencial por unidade. Além disso, "alta exposição" é uma classificação, não uma intervenção suficientemente definida. Portanto, **não podemos identificar \(\tau\) a partir do contraste descritivo**.
+
+Em estudos observacionais, a identificação causal pode depender de consistência (a intervenção observada corresponde à definida), comparabilidade ou intercambiabilidade condicional, positividade (existência de comparação plausível para cada perfil relevante) e ausência de interferência entre unidades, ou de uma estratégia que modele explicitamente seus transbordamentos. Esses conceitos serão aprofundados na Aula 5.
+
+# 5. Indicadores: operacionalizar sem empobrecer o conceito
+
+"Qualidade do emprego" é multidimensional. Uma taxa de formalização capta uma dimensão de proteção contratual, mas não esgota remuneração, jornada, segurança, estabilidade, autonomia, progressão ou acessibilidade. A definição de um índice sintético exige justificar componentes, normalização, pesos e perdas de informação.
+
+Uma matriz de operacionalização inicial pode ser:
+
+| Construto | Indicador possível | Unidade | Cuidado de interpretação |
+|---|---|---|---|
+| Formalização | Ocupados formais / ocupados | % de trabalhadores | Definição de formalidade varia entre fontes |
+| Remuneração | Rendimento real habitual médio | R$/trabalhador | Comparabilidade temporal e deflação |
+| Inclusão de PcD | Ocupados PcD / população PcD em idade de trabalhar | % de pessoas | Exige denominador de PcD, não total de ocupados |
+| Participação de PcD nos postos | Ocupados PcD / ocupados totais | % dos postos | **Não** mede nível de ocupação das PcD |
+| Transformação produtiva | Investimento em inovação ou adoção tecnológica | R$ ou % de firmas | Medida de atividade, não de impacto |
+| Alinhamento a missões | Escore textual de correspondência | escala definida | Não é implementação nem resultado |
+
+A **validade de construto** pergunta se o indicador representa adequadamente o conceito. A **validade de conteúdo** pergunta se dimensões relevantes foram contempladas. A **confiabilidade** pergunta se a mensuração é suficientemente estável e consistente. A **validade interna** diz respeito à credibilidade de uma interpretação causal, quando pretendida. A **validade externa** considera a possibilidade de transportar conclusões para outras populações e contextos. Nenhuma dessas propriedades é garantida por uma grande amostra.
+
+Erro de mensuração pode surgir de perguntas ambíguas, registros administrativos incompletos, mudanças de classificações, subnotificação ou cobertura desigual. Um dado faltante não é necessariamente um zero; uma empresa não encontrada em uma base de financiamento não é necessariamente inelegível. A escolha do indicador já incorpora hipóteses sobre o processo de produção dos dados.
+
+**Falácia ecológica:** uma relação entre médias ou taxas territoriais não permite, sem hipóteses adicionais, inferir a relação correspondente entre indivíduos. Tampouco é correto deduzir que todos os trabalhadores de um município formalizado são formais. Essa distinção entre nível de agregação e inferência individual é central para a nossa pesquisa.
+
+# 6. Teoria da mudança e riscos de identificação
+
+Uma hipótese plausível para uma política industrial orientada por missões é:
+
+**Instrumento público** → investimento adicional → adoção tecnológica e reorganização produtiva → produtividade e demanda por trabalho → quantidade, qualidade e distribuição dos empregos.
+
+Cada seta contém pressupostos. O crédito pode substituir financiamento privado que já ocorreria; a automação pode reduzir postos em certas tarefas; ganhos de produtividade podem ser apropriados por firmas sem elevação salarial; vagas podem exigir qualificações inacessíveis a grupos vulnerabilizados. A inclusão de PcD depende também de acessibilidade, desenho das tarefas, discriminação, fiscalização e tecnologias assistivas.
+
+Essa é uma **teoria de mecanismos**, não um resultado empírico. A avaliação deve distinguir **insumos**, **atividades**, **produtos**, **resultados intermediários** e **impactos finais**. Uma contagem de contratos financiados informa execução; não mede automaticamente adicionalidade, emprego ou inclusão.
+
+Considere ainda o confundimento: territórios mais produtivos podem ter maior probabilidade de captar financiamento **e** maior formalização mesmo sem o programa. Compará-los com territórios de baixa exposição mistura seleção e eventual efeito. A estratégia de identificação precisará enfrentar isso; nenhuma transformação estatística genérica substitui essa reflexão.
+
+# 7. Exemplo numérico inteiramente resolvido
+
+Construímos oito **territórios fictícios**, quatro classificados como de alta exposição e quatro como de baixa exposição. Cada um tem exatamente 100 ocupados. Na categoria alta, as contagens de formais são 70, 80, 75 e 85; na baixa, 60, 65, 55 e 70.
+
+Primeiro, somamos os numeradores: \(F_{\mathrm{alta}}=70+80+75+85=310\) e \(F_{\mathrm{baixa}}=60+65+55+70=250\). Os denominadores são \(O_{\mathrm{alta}}=O_{\mathrm{baixa}}=4\times100=400\).
+
+Logo,
+
+\[
+p_{\mathrm{alta}}=\frac{310}{400}=0{,}775,\qquad
+p_{\mathrm{baixa}}=\frac{250}{400}=0{,}625.
+\]
+
+E o contraste é:
+
+\[
+\Delta_{\mathrm{desc}}=0{,}775-0{,}625=0{,}150=15\ \text{pontos percentuais}.
+\]
+
+**Interpretação correta:** nos oito territórios inventados, a proporção de ocupados formais é 15 pontos percentuais maior no grupo de alta exposição. **Interpretação incorreta:** a política aumentou a formalização em 15 pontos percentuais. Não há atribuição real, intervenção definida, contrafactual observado nem desenho de identificação.
+
+O mesmo arquivo contém a contagem de PcD entre os ocupados: 30 em 400 postos do grupo alto e 18 em 400 do grupo baixo. Isso resulta em 7,5% e 4,5% de **participação de PcD entre os ocupados**. Não é o nível de ocupação de PcD, porque desconhecemos o total de pessoas com deficiência residentes em cada território.
+
+# 8. Laboratório reproduzível em R
+
+A amostra CSV está versionada no repositório; não é necessário executar o script separado de preparação. O código utiliza apenas funções do R base e aceita execução a partir da raiz do projeto ou da pasta do documento Quarto.
+
+~~~{r}
+candidatos <- c(
+  file.path("dados", "amostras", "aula_01", "territorios_ficticios.csv"),
+  file.path("..", "..", "..", "dados", "amostras", "aula_01",
+            "territorios_ficticios.csv")
+)
+arquivo <- candidatos[file.exists(candidatos)][1]
+stopifnot(!is.na(arquivo))
+d <- read.csv(arquivo, stringsAsFactors = FALSE)
+stopifnot(nrow(d) == 8, all(d$formais <= d$ocupados),
+          all(d$pcd_ocupados <= d$ocupados))
+
+ag <- aggregate(cbind(formais, ocupados, pcd_ocupados) ~ exposicao,
+                data = d, FUN = sum)
+ag$taxa_formal <- ag$formais / ag$ocupados
+ag$participacao_pcd <- ag$pcd_ocupados / ag$ocupados
+print(ag)
+
+p_alta <- ag$taxa_formal[ag$exposicao == "alta"]
+p_baixa <- ag$taxa_formal[ag$exposicao == "baixa"]
+contraste_pp <- 100 * (p_alta - p_baixa)
+stopifnot(isTRUE(all.equal(contraste_pp, 15)))
+print(contraste_pp)
+~~~
+
+A função \`aggregate()\` soma as contagens por grupo; as divisões calculam proporções com denominadores explícitos. \`stopifnot()\` detecta incoerências estruturais e confere o exemplo. O script completo e os exercícios estão em \`exercicios_01.R\`; as respostas detalhadas, em \`resolucoes_01.qmd\`. **Não calcule intervalos de confiança** sobre essas oito unidades inventadas como se fossem uma amostra probabilística de municípios brasileiros.
+
+# 9. Estudo crítico: PcD e mercado de trabalho brasileiro
+
+O IBGE, na divulgação temática da PNAD Contínua 2022, registrou **nível de ocupação** de 26,6% entre pessoas com deficiência e 60,7% entre pessoas sem deficiência, para a população de 14 anos ou mais. A diferença descritiva é \(26{,}6-60{,}7=-34{,}1\) pontos percentuais. Fonte: [IBGE — PNAD Contínua, Pessoas com Deficiência 2022](https://www.ibge.gov.br/estatisticas/sociais/trabalho/17270-pnad%20continua.html%20/17270-pnad-continua.html?edicao=37280).
+
+**O que o estudo informa?** Uma desigualdade substantiva observada sob definições e desenho de levantamento específicos. **O que não informa diretamente?** Um efeito causal de "ter deficiência", a parcela atribuível à discriminação, ou o efeito de tecnologias assistivas sobre a ocupação. O primeiro desafio é de mensuração: o indicador usa como denominador a população de 14 anos ou mais de cada grupo, não somente pessoas na força de trabalho. O segundo é de composição: idade, escolaridade, barreiras ambientais, tipos de dificuldade funcional e condições locais variam entre grupos. O terceiro é de inferência: deficiência não é um tratamento único e manipulável com contrafactual simples.
+
+Para uma agenda sobre tecnologias assistivas, a pergunta mais bem definida poderia ser: "Qual é o efeito da oferta de um serviço especificado de avaliação, fornecimento e acompanhamento de tecnologia assistiva sobre a permanência no emprego de trabalhadores elegíveis?" Ainda faltariam regras de elegibilidade, desfecho, horizonte, comparação e dados. Esse exercício mostra como um **diagnóstico descritivo** pode motivar, mas não substituir, um desenho causal.
+
+# 10. Exercícios graduais
+
+1. **Classificação.** Classifique como descritiva, preditiva, causal ou simulação de mecanismos: (a) taxa de formalização em 2025; (b) previsão de desligamentos em 2027; (c) efeito da concessão de crédito; (d) comportamento emergente de firmas em um modelo baseado em agentes.
+2. **Unidade e denominador.** Diferencie "participação de PcD entre ocupados" de "nível de ocupação das PcD". Escreva ambos os denominadores.
+3. **Cálculo.** Refaça o contraste de formalização do exemplo e obtenha a diferença relativa \((p_{\mathrm{alta}}/p_{\mathrm{baixa}})-1\). Interprete as duas escalas.
+4. **Mensuração.** Proponha três indicadores de qualidade do emprego, suas unidades, vantagens e limites.
+5. **Crítica.** Um relatório afirma: "Municípios que receberam mais crédito da NIB têm salários maiores; logo, o crédito elevou salários". Identifique três explicações alternativas e proponha um caminho para investigar o efeito.
+6. **Projeto cumulativo.** Formule uma pergunta descritiva e uma pergunta causal sobre transformação produtiva e emprego, explicitando população, unidade, exposição, desfecho, período e principal ameaça à validade.
+
+## Gabarito sintético
+
+1. (a) descrição; (b) predição; (c) causalidade; (d) simulação. 2. A primeira razão usa todos os ocupados; a segunda usa a população PcD em idade de trabalhar. 3. \(15\) pontos percentuais; \(0{,}775/0{,}625-1=0{,}24\), ou **24% de diferença relativa**. 4. Por exemplo, formalização, rendimento real e rotatividade, com cautelas de definição e cobertura. 5. Seleção de territórios, composição setorial e tendências anteriores são explicações plausíveis; comparar trajetórias de unidades elegíveis com desenho justificável é um primeiro passo. 6. Não há resposta única: o essencial é explicitar estimandos distintos e não alegar identificação causal por simples contraste. As soluções completas estão no arquivo próprio.
+
+# 11. Plano de estudo: segunda-feira e terça-feira
+
+**Segunda, 02/11 — 3 horas obrigatórias + 1 opcional.**
+
+| Sessão | Trabalho | Produto verificável |
+|---|---|---|
+| 1 (60 min) | Ler seções 1–3 e discutir as cinco finalidades analíticas | Cinco perguntas bem classificadas |
+| 2 (60 min) | Estudar estimandos, indicadores e teoria da mudança (seções 4–6) | Matriz conceito–indicador–unidade |
+| 3 (60 min) | Refazer cálculos e executar código R (seções 7–8) | Saída conferida: 15 p.p. |
+| 4 (opcional, 60 min) | Leitura de McElreath, cap. 1 | Nota sobre hipótese, modelo e medida |
+
+**Terça, 03/11 — 3 horas obrigatórias + 1 opcional.**
+
+| Sessão | Trabalho | Produto verificável |
+|---|---|---|
+| 1 (60 min) | Ler Imai, cap. 1 e seções 3.1 e 3.4; responder exercícios 1–3 | Respostas justificadas |
+| 2 (60 min) | Ler Gertler et al., cap. 2; resolver exercícios 4–5 | Teoria da mudança e crítica |
+| 3 (60 min) | Resolver exercício 6 e registrar protocolo do projeto | Primeira entrega reproduzível |
+| 4 (opcional, 60 min) | Ler Hernán e Robins, cap. 1, seções 1.1–1.5 | Nota sobre associação e efeito causal |
+
+**Domingo é livre.** O trabalho de terça complementa, mas não antecipa, a Aula 2 de quarta-feira.
+
+# 12. Leituras confirmadas na biblioteca do projeto
+
+As seguintes obras foram **localizadas e seus sumários conferidos** na biblioteca:
+
+- **Imai, Kosuke.** *Quantitative Social Science: An Introduction*. Capítulo 1, seções 1.1–1.3 (visão geral e R); capítulo 3, seções 3.1 e 3.4 (mensuração e amostragem); capítulo 2, seção 2.3 (efeitos causais e contrafactual, consulta complementar).
+- **McElreath, Richard.** *Statistical Rethinking*, 2ª edição. Capítulo 1, seções 1.1–1.3, especialmente "Statistical golems" e "Statistical rethinking".
+- **Gertler, Martinez, Premand, Rawlings e Vermeersch.** *Impact Evaluation in Practice*, 2ª edição. Capítulo 2, "Preparing for an Evaluation": teoria da mudança, cadeia de resultados, perguntas e indicadores.
+- **Hernán, Miguel A.; Robins, James M.** *Causal Inference: What If*, arquivo datado de 19/08/2026. Capítulo 1, seções 1.1–1.5; capítulo 3, seções 3.4–3.6, apenas para aprofundamento posterior.
+
+Não foram atribuídas páginas de capítulos não verificados. As seções acima foram confirmadas nos sumários dos PDFs e partes relevantes dos capítulos foram consultadas.
+
+# 13. Entrega da semana e continuidade
+
+Produza, em \`projeto_integrador/\` no seu diretório de trabalho, uma proposta inicial de **1–2 páginas** com: problema público, duas perguntas (descritiva e causal), população e unidades, construtos, ao menos três indicadores, esboço de teoria da mudança, uma ameaça à validade e fontes candidatas. Não faça inferência populacional com a amostra didática.
+
+Esta aula estabelece **o que** queremos conhecer. A Aula 2, em 04/11, construirá ferramentas matemáticas e probabilísticas para formalizar relações e incertezas; a Aula 3 tratará da passagem de amostras para populações. Mais adiante, distinguiremos identificação causal, predição e simulação de mecanismos. A pergunta científica permanece a referência comum entre os métodos.

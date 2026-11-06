@@ -1,0 +1,5 @@
+programa,formal,n
+sim,sim,30
+sim,nao,10
+nao,sim,80
+nao,nao,80
