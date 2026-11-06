@@ -1,0 +1,3 @@
+variavel,definicao,tipo,valores_validos,origem,transformacao,ausentes
+id,identificador sequencial,inteiro,1 a 100,sintetica,sequencia de 1 a 100,nenhum
+formal,indicador binario ficticio,inteiro,0 ou 1,sintetica,64 uns seguidos de 36 zeros,nenhum

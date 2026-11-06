@@ -1,0 +1,18 @@
+dataset:
+  nome: "observacoes_ficticias_aula_03"
+  versao: "1.0.0"
+  tipo: "sintetico_didatico"
+fonte:
+  instituicao: "geracao_didatica"
+  pesquisa: "nenhuma — dados inteiramente ficticios"
+  url_oficial: null
+  data_acesso: null
+amostragem:
+  metodo: "construcao_deterministica: 64 valores 1 e 36 valores 0"
+  semente: 20261106
+  tamanho: 100
+  adequada_inferencia_populacional: false
+processamento:
+  script_documentado: "dados/preparacao/aula_03_gerar_amostra.R"
+  pacotes: "R base"
+limitacoes: "Nao representam trabalhadores, empresas ou territorios reais; pressuposto iid apenas ilustrativo."
