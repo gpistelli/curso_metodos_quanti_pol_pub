@@ -1,0 +1,14 @@
+---
+title: "Resoluções comentadas — Aula 06/18"
+date: 2026-11-13
+lang: pt-BR
+format: html
+---
+# Resoluções
+
+1. Tratados: 61−50=11. Controle: 44−40=4. DiD=7. Diferença pós=61−44=17. A diferença pré de 10 explica a divergência.
+2. DiD permite diferenças fixas de nível. A hipótese necessária é tendência contrafactual comum sem tratamento, não igualdade de níveis. Não é diretamente testável.
+3. ITT mede efeito da atribuição/oferta; ATT mede efeito do tratamento entre quem efetivamente o recebeu. Com não adesão, são estimandos distintos.
+4. Usar -2 como pré e -1 como pós fictício, antes da intervenção real; estimar a interação grupo×período. Placebo diferente de zero alerta para tendência diferencial. Placebo zero não prova tendências paralelas futuras.
+5. Sobrevivência pode depender de tratamento e de fatores que também afetam salários. Condicionar em sobrevivência pode introduzir viés de seleção e mudar a população de interesse.
+6. Exemplo: ATT do desembolso de crédito entre empresas elegíveis sobre remuneração real após 12 meses; diagnósticos de pré-tendências, placebo e atrito. Alternativa: ITT da oferta de pacote de tecnologias assistivas sobre permanência no emprego; avaliar adesão, perdas e interferência. Não declarar impacto sem identificação.
