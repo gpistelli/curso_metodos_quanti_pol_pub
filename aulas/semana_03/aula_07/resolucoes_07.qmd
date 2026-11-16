@@ -1,0 +1,20 @@
+---
+title: "Aula 7 — Resoluções comentadas"
+lang: pt-BR
+format: html
+---
+# Resoluções
+
+**1.** A verossimilhança \(L(p;y)\) mede compatibilidade relativa dos dados observados com valores do parâmetro; não é uma densidade normalizada em \(p\). A posterior \(\pi(p\mid y)\propto L(p;y)\pi(p)\) é uma distribuição sobre o parâmetro, normalizada pela evidência.
+
+**2.** \(a=1,b=1,y=3,n=10\). A posterior é \(\operatorname{Beta}(4,8)\); média \(4/12=1/3\). A proporção observada é \(3/10\). A média posterior não é igual à proporção, pois incorpora a priori.
+
+**3.** Condicionalmente ao modelo Beta–Binomial, à priori Beta(2,18) e aos dados fictícios \(y=6,n=20\), a probabilidade posterior de \(p\) estar entre \`qbeta(.025,8,32)\` e \`qbeta(.975,8,32)\` é 95%. Não é afirmação de que 95% dos futuros intervalos conterão o parâmetro; esta última é uma propriedade de cobertura frequentista.
+
+**4.** \(E[\widetilde Y\mid y]=mA/(A+B)=5(8/40)=1\). A preditiva Beta–Binomial integra incerteza sobre \(p\), gerando variância maior que a binomial de parâmetro fixo \(p=0,2\) quando há incerteza posterior positiva.
+
+**5.** Com seis sucessos e vinte casos: Beta(1,1) gera Beta(7,15), média \(7/22\approx0,3182\); Beta(2,18) gera Beta(8,32), média 0,20; Beta(10,10) gera Beta(16,24), média 0,40. A amplitude da sensibilidade mostra a influência da informação anterior com amostra pequena. Para causalidade, especificar intervenção, população, contrafactual, momento zero, confundidores e desenho de identificação; posterior descritiva não é ATT/ATE.
+
+## Estudo crítico — resposta orientadora
+
+O erro central é interpretar a taxa posterior de sucesso como efeito da intervenção. Sem comparação contrafactual, não se conhece a permanência sob ausência de dispositivo. A priori requer fundamento; dependência por estabelecimento e heterogeneidade funcional podem invalidar a binomial simples. A avaliação deve registrar perdas, elegibilidade e desfechos com precisão.
