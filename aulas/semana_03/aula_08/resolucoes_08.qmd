@@ -1,0 +1,24 @@
+---
+title: "Aula 8 — Resoluções comentadas"
+date: 2026-11-18
+lang: pt-BR
+format: html
+---
+
+# Exercício 1
+A posterior não normalizada é \(h(\theta)=L(y\mid\theta)\pi(\theta)\); como \(\pi(\theta\mid y)=h(\theta)/Z\), a razão entre dois pontos contém \((h(\theta^*)/Z)/(h(\theta)/Z)\), cancelando \(Z\). Isso não elimina a necessidade de densidade-alvo corretamente implementada.
+
+# Exercício 2
+Para proposta simétrica na **escala p**, \(r=(.25/.20)^7(.75/.80)^{31}\). Logo \(\log r\approx-0,439\) e \(\alpha\approx0,645\). Atenção: o algoritmo do laboratório propõe na **escala logit**, portanto inclui jacobiano e não tem necessariamente a mesma aceitação para esse par.
+
+# Exercício 3
+Passos minúsculos tendem a aceitar muitas propostas, mas geram trajetórias altamente correlacionadas. Passos grandes tendem a rejeitar muito, repetindo estados. Taxa de aceitação isolada não mede qualidade; verificar trace plots, ESS e exploração entre cadeias.
+
+# Exercício 4
+Para \(\theta=(a,b)\), atualizar \(a^{(m+1)}\sim\pi(a\mid b^{(m)},y)\), depois \(b^{(m+1)}\sim\pi(b\mid a^{(m+1)},y)\). Marginais \(\pi(a\mid y)\) e \(\pi(b\mid y)\) não descrevem dependência conjunta; condicionais devem derivar da mesma distribuição conjunta própria.
+
+# Exercício 5
+Desvio-padrão posterior quantifica dispersão de crenças condicionais ao modelo e dados. MCSE quantifica imprecisão numérica da estimativa da média posterior por uma cadeia finita. É possível ter MCSE pequeno e posterior ampla, ou MCSE grande e posterior estreita se a cadeia mistura muito mal.
+
+# Exercício 6
+O relatório hipotético confunde boa exploração numérica com identificação causal. Exigir: (1) definição de intervenção, população e contrafactual; (2) exame de seleção, confundimento e tendências quando pertinente; (3) diagnóstico de convergência e sensibilidade a priors, modelos e dados. \(\widehat R\) próximo de um não prova causalidade.
