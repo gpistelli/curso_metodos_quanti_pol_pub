@@ -1,0 +1,199 @@
+---
+title: "Aula 8/18 — MCMC: Metropolis, Gibbs, posterior, convergência e diagnósticos"
+date: 2026-11-18
+lang: pt-BR
+format: html
+execute:
+  eval: false
+---
+
+# 1. Motivação e pergunta de pesquisa
+
+**Quarta-feira, 18/11/2026; consolidação quinta-feira, 19/11/2026.** A Aula 7 mostrou que, quando uma priori Beta é combinada com uma verossimilhança binomial, a distribuição posterior pode ser calculada exatamente. Essa facilidade é excepcional. Modelos com muitos parâmetros, efeitos de estabelecimentos, erros de mensuração, heterogeneidade e estruturas hierárquicas frequentemente não possuem integrais posteriores analiticamente tratáveis. Como estimar médias, intervalos e probabilidades sem conhecer a constante normalizadora?
+
+O método **Markov chain Monte Carlo (MCMC)** produz uma sequência dependente de valores de parâmetros cuja distribuição de longo prazo é a posterior-alvo. Não se trata de simular trabalhadores, empresas ou mecanismos econômicos: é **simulação computacional para inferência probabilística**. Essa distinção será importante para não confundir a aula com a modelagem baseada em agentes, prevista posteriormente.
+
+Exemplo substantivo: uma linha de financiamento vinculada à Nova Indústria Brasil pode ser avaliada em relação à qualidade e inclusão do emprego. Um modelo bayesiano poderia estimar a incerteza sobre taxas de cumprimento de metas por setor, ou sobre coeficientes de uma avaliação de impacto previamente identificada. A inferência causal, entretanto, continua dependendo de desenho, elegibilidade, contrafactuais e hipóteses das Aulas 5–6. Na trilha alternativa, podemos modelar a permanência no emprego de PcD após serviços de tecnologias assistivas, sem transformar uma taxa posterior em efeito causal.
+
+**Objetivos (sete):** (1) distinguir amostragem independente e cadeias de Markov; (2) explicar a posterior-alvo e a aproximação Monte Carlo; (3) implementar Metropolis–Hastings com proposta simétrica; (4) compreender a lógica das condicionais completas de Gibbs; (5) diagnosticar autocorrelação, mistura e convergência; (6) comparar resultados MCMC com solução analítica e realizar sensibilidade; (7) produzir uma entrega reproduzível que preserve os limites descritivos, preditivos e causais.
+
+# 2. Posterior e integração Monte Carlo
+
+Seja \(\theta\) o parâmetro desconhecido, \(y\) os dados, \(L(y\mid\theta)\) a verossimilhança e \(\pi(\theta)\) a priori. A regra de Bayes é
+
+\[
+\pi(\theta\mid y)=\frac{L(y\mid\theta)\pi(\theta)}{\int L(y\mid u)\pi(u)\,du}.
+\]
+
+A integral do denominador, chamada evidência ou constante de normalização, pode ser difícil de calcular. Para uma função \(g(\theta)\), queremos
+
+\[
+E[g(\theta)\mid y]=\int g(\theta)\pi(\theta\mid y)\,d\theta.
+\]
+
+Se tivermos \(M\) amostras representativas da posterior, aproximamos:
+
+\[
+\widehat{E[g(\theta)\mid y]}=\frac1M\sum_{m=1}^M g(\theta^{(m)}).
+\]
+
+Aqui \(M\) é o número de iterações retidas; \(\theta^{(m)}\) é o valor do parâmetro na iteração \(m\). A escolha \(g(\theta)=\theta\) estima a média; \(g(\theta)=\mathbb{1}(\theta>c)\), em que \(\mathbb{1}\) é uma função indicadora, estima uma probabilidade posterior acima de um limiar \(c\).
+
+Uma cadeia de Markov satisfaz \(P(\theta^{(m+1)}\mid\theta^{(1)},\ldots,\theta^{(m)})=P(\theta^{(m+1)}\mid\theta^{(m)})\): o próximo estado depende do estado atual, e não de toda a história, dadas as condições do algoritmo. Ao contrário de amostras independentes, valores consecutivos da cadeia podem ser fortemente correlacionados. O objetivo é construir uma transição que preserve a posterior como distribuição estacionária, e que seja capaz de explorar seu suporte.
+
+**Cuidado:** estacionariedade é propriedade da distribuição da cadeia, não a ausência de movimentos no gráfico. Uma cadeia imóvel pode estar completamente errada.
+
+# 3. Metropolis–Hastings passo a passo
+
+No algoritmo de Metropolis–Hastings, partimos de um valor \(\theta^{(m)}\), propomos \(\theta^*\) de uma distribuição \(q(\theta^*\mid\theta^{(m)})\), calculamos a razão
+
+\[
+r=\frac{\pi(\theta^*\mid y)q(\theta^{(m)}\mid\theta^*)}
+{\pi(\theta^{(m)}\mid y)q(\theta^*\mid\theta^{(m)})}
+\]
+
+e aceitamos a proposta com probabilidade \(\alpha=\min(1,r)\). Se rejeitada, repetimos o estado anterior. Como a constante normalizadora da posterior aparece tanto no numerador quanto no denominador, ela se cancela.
+
+Para uma proposta simétrica \(q(a\mid b)=q(b\mid a)\), como um passeio aleatório normal, a razão simplifica-se para a razão das densidades posteriores não normalizadas. Em programação, usamos **logaritmos** para evitar subfluxo numérico:
+
+\[
+\log r=\log L(y\mid\theta^*)+\log\pi(\theta^*)
+-\log L(y\mid\theta^{(m)})-\log\pi(\theta^{(m)}).
+\]
+
+Aceitamos quando \(\log U<\min(0,\log r)\), com \(U\sim Uniforme(0,1)\).
+
+**Exemplo numérico resolvido.** Imagine uma posterior cuja densidade não normalizada é \(h(p)=p^7(1-p)^{31}\), para \(0<p<1\), que corresponde à Beta(8,32). Partindo de \(p=0,20\), propomos \(p^*=0,25\) com uma proposta simétrica. Então
+
+\[
+\log r=7\log(0,25/0,20)+31\log(0,75/0,80)
+\approx 1,5620-2,0007=-0,4387.
+\]
+
+A probabilidade de aceitação é aproximadamente \(e^{-0,4387}=0,645\). Se sorteamos \(U=0,50\), aceitamos; se \(U=0,80\), rejeitamos. A rejeição não é um erro: é parte necessária da construção da distribuição-alvo.
+
+O tamanho dos passos importa. Propostas muito pequenas podem ser aceitas quase sempre, mas produzem forte autocorrelação e exploração lenta. Propostas excessivamente grandes podem ser rejeitadas com frequência, deixando longas sequências repetidas. Não existe taxa universal ótima de aceitação; a escolha depende da dimensão e do algoritmo. Ajustes adaptativos devem ser realizados de maneira compatível com a validade do amostrador, por exemplo em fase de aquecimento separada.
+
+# 4. Gibbs: quando condicionais completas são acessíveis
+
+No amostrador de Gibbs, particionamos \(\theta=(\theta_1,\theta_2,\ldots,\theta_K)\) e atualizamos cada componente por sua **distribuição condicional completa**:
+
+\[
+\theta_1^{(m+1)}\sim\pi(\theta_1\mid\theta_2^{(m)},\ldots,\theta_K^{(m)},y)
+\]
+
+e, em seguida,
+
+\[
+\theta_2^{(m+1)}\sim\pi(\theta_2\mid\theta_1^{(m+1)},\theta_3^{(m)},\ldots,y).
+\]
+
+Continuamos até o último componente, usando os valores mais recentes dos parâmetros já atualizados. Quando é possível amostrar exatamente dessas condicionais, cada passo é aceito; não há etapa separada de rejeição. Gibbs pode ser entendido como caso especial de Metropolis–Hastings, mas não é necessariamente mais eficiente em todos os modelos. Condicionais difíceis ou correlação forte entre parâmetros podem tornar sua exploração lenta.
+
+Exemplo conceitual: num modelo de salários com interceptos por estabelecimento e um parâmetro de dispersão, poderíamos alternar atualizações dos efeitos de estabelecimento e dos parâmetros globais. Para usar Gibbs, precisaríamos derivar corretamente cada condicional; não basta sortear valores de distribuições parecidas.
+
+Na Beta–Binomial da Aula 7 há apenas um parâmetro \(p\) com posterior analítica. Podemos gerar amostras independentes diretamente com \`rbeta()\`, sem MCMC. Usaremos esse resultado como **padrão de verificação** para o algoritmo de Metropolis. Isso é uma vantagem pedagógica, não uma justificativa para aplicar MCMC quando a solução exata já está disponível.
+
+# 5. Diagnósticos: o que significa confiar na cadeia?
+
+A convergência teórica depende de propriedades da transição, como irreducibilidade, recorrência apropriada e aperiodicidade. Na prática, nenhuma inspeção finita prova que a cadeia atingiu a posterior. Devemos reunir evidências convergentes:
+
+**Traçado (trace plot).** Um gráfico de iterações contra valores deve mostrar exploração repetida da região posterior, sem deriva persistente ou períodos prolongados de aprisionamento. Uma aparência de “lagarta” é sugestiva, não conclusiva.
+
+**Múltiplas cadeias.** Inicializações dispersas ajudam a detectar falta de mistura. Se cadeias permanecem em regiões diferentes, não devemos confiar em resumos agregados.
+
+**Autocorrelação.** Definimos \(\rho_k=Corr(\theta^{(m)},\theta^{(m+k)})\) para defasagem \(k\). Autocorrelações elevadas reduzem a informação efetiva de \(M\) sorteios.
+
+**Tamanho efetivo da amostra (ESS).** Sob condições apropriadas,
+
+\[
+ESS\approx\frac{M}{1+2\sum_{k=1}^{\infty}\rho_k}.
+\]
+
+A soma representa o efeito da dependência serial; na prática é estimada e truncada por procedimentos estáveis. O ESS não é o número de observações do levantamento nem o número bruto de iterações.
+
+**Erro Monte Carlo (MCSE).** Para a média posterior, uma aproximação é
+
+\[
+MCSE(\bar\theta)\approx\frac{s_\theta}{\sqrt{ESS}},
+\]
+
+em que \(s_\theta\) é o desvio-padrão posterior estimado. MCSE quantifica erro de integração numérica, **não** a incerteza substantiva da posterior. Dobrar o número de iterações não corrige um modelo mal especificado.
+
+**\(\widehat R\).** Diagnóstico entre e dentro de múltiplas cadeias, que idealmente se aproxima de 1. Implementações modernas usam versões rank-normalized e split-\(\widehat R\); a fórmula simples \( \sqrt{\widehat{\mathrm{Var}}^+(\theta)/W}\), em que \(W\) é a variância média intrcadeia, serve apenas de intuição. Valores próximos de 1 não garantem identificação, validade causal ou ausência de problemas.
+
+**Aquecimento e thinning.** Descartar uma fase inicial pode reduzir influência de inicializações, mas não conserta uma cadeia que mistura mal. Descartar sistematicamente iterações (thinning) costuma desperdiçar informação, salvo razões práticas específicas, como armazenamento. Mais iterações não substituem diagnóstico.
+
+# 6. Laboratório R reproduzível
+
+A amostra \`dados/amostras/aula_08/coorte_sintetica.csv\` contém 20 registros binários **fictícios**, com seis sucessos. Ela foi criada para ensino, não deriva de microdados reais. Usamos priori Beta(2,18), portanto posterior exata Beta(8,32). O script \`exercicios_08.R\` implementa quatro cadeias independentes de Metropolis em escala logit, preservando corretamente o jacobiano da transformação. Esse detalhe é crucial: propor em \(z=\log(p/(1-p))\) exige incluir \(\log p+\log(1-p)\) na densidade-alvo transformada.
+
+Uma versão reduzida do núcleo é:
+
+\`\`\`r
+logpost_z <- function(z, A, B) {
+  p <- plogis(z)
+  dbeta(p, A, B, log = TRUE) +
+    log(p) + log1p(-p)
+}
+metropolis <- function(n, start, sd_step, A, B) {
+  z <- numeric(n); z[1] <- qlogis(start)
+  accepted <- 0L
+  for (i in 2:n) {
+    candidate <- rnorm(1, z[i-1], sd_step)
+    log_ratio <- logpost_z(candidate,A,B) -
+                 logpost_z(z[i-1],A,B)
+    if (log(runif(1)) < min(0,log_ratio)) {
+      z[i] <- candidate; accepted <- accepted+1L
+    } else z[i] <- z[i-1]
+  }
+  list(p=plogis(z), acceptance=accepted/(n-1))
+}
+\`\`\`
+
+A função \`plogis()\` transforma a escala real em probabilidade; \`qlogis()\` realiza a transformação inversa. \`dbeta(...,log=TRUE)\` avalia a densidade logarítmica. A proposta normal é simétrica na escala \(z\), não na escala \(p\). Por isso o jacobiano é indispensável.
+
+O script completo lê a amostra publicada, verifica o total de sucessos, fixa a semente \`20261118\`, usa quatro cadeias com inicializações distintas, descarta aquecimento e compara média, quantis e probabilidades posteriores com \`rbeta()\` e \`qbeta()\`. Também apresenta traçados, autocorrelação, uma estimativa ilustrativa de ESS e um diagnóstico entre cadeias simplificado. Esses diagnósticos didáticos não substituem implementações modernas de \`posterior\` ou \`bayesplot\` em pesquisa aplicada.
+
+O valor exato da média posterior é \(8/40=0,20\). Se uma cadeia indicar média persistentemente próxima de 0,35, o problema é computacional ou de implementação, não uma “nova evidência” sobre o parâmetro.
+
+# 7. Sensibilidade e limites de interpretação
+
+Repetir a estimação com Beta(1,1), Beta(2,18) e Beta(10,10) mostra que uma posterior depende tanto dos dados quanto da priori. Com \(y=6\), \(n=20\), as médias posteriores são respectivamente \(7/22\approx0,3182\), \(8/40=0,20\) e \(16/40=0,40\). O MCMC aproxima cada posterior; não resolve a divergência substantiva entre escolhas anteriores.
+
+Amostras MCMC também não criam informação populacional. Os vinte registros são sintéticos: não se devem reportar taxas nacionais de emprego, produtividade ou permanência de PcD com base neles. Para o projeto final, resultados oficiais agregados via API podem responder a estimandos agregados; se a pergunta exigir microdados individuais, devem ser usados os microdados oficiais completos, pesos e desenho amostral pertinentes, sem substituir indivíduos por agregados.
+
+# 8. Estudo crítico
+
+Um relatório hipotético estima por MCMC a probabilidade de uma empresa financiada aumentar empregos. Apresenta quatro cadeias, \(\widehat R\approx1\), intervalos estreitos e conclui que a NIB *causou* aumento do emprego. O raciocínio falha: convergência apenas informa que o algoritmo parece explorar a distribuição especificada. A posterior pode ser de um modelo de associação selecionada; sem contrafactual identificável, não há efeito causal. Além disso, “empresa financiada” pode representar instrumentos e doses heterogêneos, e a sobrevivência da empresa pode introduzir seleção. Um parecer rigoroso exigiria definição de tratamento, horizonte, desfecho, estimando, desenho de identificação, diagnóstico computacional e sensibilidade a priors e especificações.
+
+Na trilha PcD, a mesma crítica se aplica à probabilidade de permanência após uso de tecnologia assistiva: a posterior de uma taxa não é o efeito da provisão da tecnologia.
+
+# 9. Exercícios graduais
+
+1. Explique por que a constante de normalização desaparece da razão de Metropolis–Hastings.
+2. Para a Beta(8,32), partindo de \(p=0,20\) e propondo \(p=0,25\), calcule a aceitação de uma proposta simétrica **na escala p**.
+3. Compare propostas muito pequenas e muito grandes; explique aceitação, mistura e ESS.
+4. Descreva um ciclo de Gibbs para dois parâmetros \(a,b\) e explique por que conhecer apenas as marginais não basta.
+5. Explique por que MCSE e desvio-padrão posterior respondem a perguntas diferentes.
+6. Elabore crítica ao relatório hipotético da NIB e proponha três verificações adicionais.
+
+As soluções comentadas estão em \`resolucoes_08.qmd\`.
+
+# 10. Plano de estudo — dois dias
+
+**Quarta-feira, 18/11.** Sessão 1 (60 min): revisão de Bayes, integrais e esperança posterior. Sessão 2 (60 min): Metropolis–Hastings, cálculo manual e escala logit. Sessão 3 (60 min): executar \`exercicios_08.R\`, comparar solução exata e cadeias. Sessão 4 opcional (60 min): ler McElreath, capítulo 9, seções 9.1–9.2.
+
+**Quinta-feira, 19/11.** Sessão 1 (60 min): Gibbs, condicionais completas e exercícios 1–3. Sessão 2 (60 min): trace plots, autocorrelação, ESS, MCSE e exercícios 4–5. Sessão 3 (60 min): estudo crítico, exercício 6 e protocolo cumulativo. Sessão 4 opcional (60 min): revisar Gill, capítulo 14, seções 14.2–14.3, e conferir documentação e resultados. Domingo permanece livre.
+
+# 11. Leituras verificadas na biblioteca
+
+- Richard McElreath, *Statistical Rethinking*, 2ª edição, **capítulo 9, seções 9.1–9.5**: intuição de Markov, Metropolis, HMC e diagnóstico. Seções confirmadas no sumário do PDF da biblioteca.
+- Jeff Gill, *Bayesian Methods: A Social and Behavioral Sciences Approach*, 3ª edição, **capítulo 14, seções 14.2 e 14.3**: inicialização, aquecimento e avaliação de convergência. Seções verificadas no texto do PDF da biblioteca.
+- Como reforço conceitual, retomar a Aula 7 sobre Beta–Binomial; não foram atribuídas páginas de outras referências sem confirmação.
+
+# 12. Entrega cumulativa
+
+Produzir \`projeto_integrador/semana_03/protocolo_mcmc_08.md\` contendo: (a) pergunta e classificação **descritiva/preditiva/causal**; (b) posterior e escolha da priori; (c) algoritmo, proposta, número de cadeias, inicializações, semente, aquecimento; (d) comparação com solução exata; (e) traçados, autocorrelação, ESS aproximado, MCSE e avaliação entre cadeias; (f) sensibilidade e limitações; (g) plano para substituir a demonstração sintética por fontes oficiais no projeto final, quando pertinente.
+
+Registrar URL de origem dos dados quando houver fonte externa, data de acesso, versão, transformações, dicionário e pacotes. Nesta aula a origem é **geração sintética local**, sem URL externa. Não executar o gerador como pré-requisito. A Aula 9 estudará modelos com estados latentes e transições; não confundir a cadeia artificial de amostragem MCMC de hoje com a cadeia substantiva que modela estados de um fenômeno social.
