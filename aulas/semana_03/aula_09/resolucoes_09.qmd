@@ -1,0 +1,23 @@
+---
+title: "Aula 9/18 — Resoluções comentadas"
+date: 2026-11-20
+lang: pt-BR
+format: html
+---
+# Exercício 1
+Cada linha de P soma 1: 0,8+0,2=1 e 0,3+0,7=1. Multiplicando P por P, obtemos [0,70 0,30; 0,45 0,55]. A célula B→Q em dois passos é 0,8×0,2+0,2×0,7=0,30. Não confundir potência matricial com potência elemento a elemento.
+
+# Exercício 2
+Se π=(b,q), b+q=1 e 0,2b=0,3q. Logo b=0,6, q=0,4. Em equilíbrio, fluxos continuam: 0,6×0,2=0,12 de B para Q e 0,4×0,3=0,12 de Q para B.
+
+# Exercício 3
+A estimativa por contagem é [12/20 8/20; 3/10 7/10] = [0,6 0,4; 0,3 0,7]. Se os indivíduos que abandonam o painel diferem sistematicamente, a matriz não representa necessariamente as transições da população.
+
+# Exercício 4
+Para O1=1: pesos δ_B B_B1=0,6×0,1=0,06 e δ_Q B_Q1=0,4×0,8=0,32. Soma=0,38. Distribuição filtrada=(0,1578947; 0,8421053).
+
+# Exercício 5
+Filtragem usa observações até t para estimar S_t; suavização utiliza também observações posteriores até T; previsão projeta estados futuros a partir da informação disponível até t. São condicionamentos diferentes e não equivalentes.
+
+# Exercício 6
+Exemplo: estados latentes de qualidade do emprego, observados indiretamente por estabilidade e remuneração; podem falhar independência condicional das emissões e homogeneidade temporal. Para causalidade, definir exposição verificável a instrumento NIB e grupo comparável, com hipóteses de tendências paralelas ou outra estratégia identificadora; o HMM sozinho não atribui efeitos. Alternativa PcD: estado de acesso a emprego inclusivo, indicador de permanência, atenção a barreiras e seleção para serviços assistivos.
