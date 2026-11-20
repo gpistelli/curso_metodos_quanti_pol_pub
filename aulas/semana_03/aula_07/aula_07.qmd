@@ -1,0 +1,210 @@
+---
+title: "Aula 7/18 — Inferência bayesiana: priors, conjugação Beta–Binomial, predição e sensibilidade"
+date: 2026-11-16
+lang: pt-BR
+format: html
+execute:
+  eval: false
+---
+
+# Motivação e natureza das inferências
+
+**Segunda, 16/11/2026; consolidação terça, 17/11/2026.** Na semana anterior distinguimos associação, estimandos causais e desenhos de identificação. Hoje mudamos o modo de representar incerteza, não a definição de causalidade. A inferência bayesiana combina hipóteses probabilísticas prévias com a informação trazida pelos dados para produzir uma distribuição posterior. Uma posterior sobre a taxa de sucesso de um programa é **descritiva/inferencial**; uma distribuição preditiva sobre novos atendimentos é **preditiva**; nenhuma delas é automaticamente um efeito **causal**. Simular novos resultados a partir do modelo é **simulação preditiva**, não uma simulação de mecanismos sociais.
+
+Considere a avaliação de um serviço de apoio ao emprego de pessoas com deficiência (PcD), incluindo avaliação de necessidades, provisão e acompanhamento de tecnologias assistivas. Queremos conhecer a probabilidade de permanência no emprego após 12 meses entre participantes de uma coorte claramente definida. Outra aplicação possível seria a proporção de estabelecimentos financiados por uma linha da Nova Indústria Brasil que cumpriram um marco de contratação formal. Em ambos os casos, selecionar apenas beneficiários e contar sucessos descreve resultados entre beneficiários, não o impacto da intervenção. Para medir impacto, precisaríamos do contrafactual e das condições discutidas nas Aulas 5 e 6.
+
+## Objetivos
+
+1. Distinguir parâmetro, dado, verossimilhança, priori, evidência e posterior.
+2. Derivar a regra de Bayes para um parâmetro contínuo.
+3. Explicar a conjugação Beta–Binomial e seus pressupostos.
+4. Calcular média, variância, intervalo de credibilidade e probabilidades posteriores.
+5. Construir uma predição posterior para observações futuras.
+6. Analisar a sensibilidade a diferentes distribuições a priori.
+7. Produzir um artefato reproduzível para o projeto cumulativo, sem inferência populacional a partir de dados arbitrários.
+
+## 1. A pergunta probabilística
+
+Seja \(p\) a probabilidade de sucesso, entre zero e um, em uma população e janela temporal bem definidas. Observamos \(n\) unidades e \(y\) sucessos. O modelo binomial é
+
+\[
+Y\mid p,n\sim\operatorname{Binomial}(n,p),\qquad
+P(Y=y\mid p,n)=\binom{n}{y}p^y(1-p)^{n-y}.
+\]
+
+Aqui \(Y\) é o número aleatório de sucessos; \(y\), sua realização observada; \(n\), o número fixo de tentativas; \(\binom{n}{y}=n!/[y!(n-y)!]\), o número de combinações; e \(p\), a probabilidade desconhecida. O modelo supõe resultados binários, probabilidade comum e independência condicional entre tentativas. Se a permanência depende de estabelecimento, setor, região, acompanhamento ou barreiras de acessibilidade, essas hipóteses podem falhar. A simplificação serve ao aprendizado, não deve ser aceita sem crítica em uma avaliação real.
+
+A verossimilhança é a mesma expressão considerada como função de \(p\) para os dados observados: \(L(p;y)\propto p^y(1-p)^{n-y}\). Ela informa quais valores de \(p\) tornam os dados mais compatíveis com o modelo, mas não é uma distribuição de probabilidade sobre \(p\).
+
+## 2. Regra de Bayes e seus componentes
+
+\[
+\boxed{\pi(p\mid y)=\frac{f(y\mid p)\pi(p)}{\int_0^1 f(y\mid u)\pi(u)\,du}}
+\]
+
+A função \(\pi(p)\) é a densidade **a priori**: uma representação probabilística da incerteza antes de observar a amostra em questão. \(f(y\mid p)\) é a verossimilhança; \(\pi(p\mid y)\), a densidade **posterior**. A integral no denominador, chamada evidência ou verossimilhança marginal, normaliza a densidade para que sua área seja um. A letra \(u\) é uma variável auxiliar de integração. Não confunda probabilidade de dados condicionada ao parâmetro com probabilidade do parâmetro condicionada aos dados.
+
+Uma priori pode vir de estudos anteriores, informação técnica, elicitação estruturada ou uma escolha deliberadamente pouco concentrada. "Não informativa" é um rótulo relativo ao problema e à parametrização: mesmo uma priori uniforme expressa uma escolha. Usar informação anterior não significa que a posterior seja uma opinião arbitrária; significa explicitar e atualizar hipóteses, que precisam ser avaliadas.
+
+## 3. A distribuição Beta
+
+Escolhemos \(p\sim\operatorname{Beta}(a,b)\), com \(a>0\), \(b>0\) e densidade
+
+\[
+\pi(p)=\frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}
+p^{a-1}(1-p)^{b-1},\quad 0<p<1.
+\]
+
+A função \(\Gamma\) generaliza o fatorial: para inteiro positivo \(k\), \(\Gamma(k)=(k-1)!\). Os parâmetros \(a,b\) controlam localização e concentração da priori. Sua média e variância são
+
+\[
+E[p]=\frac{a}{a+b},\qquad
+\operatorname{Var}(p)=\frac{ab}{(a+b)^2(a+b+1)}.
+\]
+
+Por exemplo, \(\operatorname{Beta}(2,18)\) tem média \(2/20=0{,}10\). A soma \(a+b=20\) é uma medida de concentração; chamá-la de "20 observações anteriores" é apenas uma analogia em contextos específicos, não uma afirmação de que vinte pessoas foram efetivamente observadas. Uma priori \(\operatorname{Beta}(1,1)\) é uniforme em \(p\), mas não necessariamente neutra em outras parametrizações, como log-odds.
+
+## 4. Conjugação Beta–Binomial, passo a passo
+
+Multiplicamos verossimilhança e priori, ignorando constantes independentes de \(p\):
+
+\[
+\begin{aligned}
+\pi(p\mid y)&\propto
+p^y(1-p)^{n-y}\,p^{a-1}(1-p)^{b-1}\\
+&=p^{a+y-1}(1-p)^{b+n-y-1}.
+\end{aligned}
+\]
+
+O núcleo tem a forma de outra Beta. Portanto,
+
+\[
+\boxed{p\mid y,n\sim\operatorname{Beta}(a+y,b+n-y)}.
+\]
+
+É uma família **conjugada**: a posterior pertence à mesma família da priori. Os sucessos atualizam o primeiro parâmetro; os insucessos, o segundo. A média posterior é
+
+\[
+E[p\mid y]=\frac{a+y}{a+b+n}.
+\]
+
+Também podemos escrevê-la como uma média ponderada:
+
+\[
+E[p\mid y]=\frac{a+b}{a+b+n}\frac{a}{a+b}
++\frac{n}{a+b+n}\frac{y}{n}.
+\]
+
+A primeira parcela pondera a média a priori; a segunda, a proporção observada \(y/n\). Os pesos somam um. Para \(n>0\), isso mostra a atualização em direção aos dados. Uma priori concentrada exerce mais influência, sobretudo com poucos casos.
+
+## 5. Exemplo numérico resolvido
+
+**Dados inteiramente sintéticos:** em uma coorte didática de 20 casos, 6 têm o desfecho definido como sucesso e 14 não. Não são registros de pessoas ou empresas reais. Com priori \(\operatorname{Beta}(2,18)\), temos
+
+\[
+p\mid y=6,n=20\sim\operatorname{Beta}(8,32).
+\]
+
+A média posterior é \(8/40=0{,}20\). A proporção observada é \(6/20=0{,}30\), enquanto a média anterior era \(0{,}10\). A posterior situa-se entre as duas, pois o modelo combina ambas as fontes. Sua variância é
+
+\[
+\frac{8\cdot32}{40^2\cdot41}
+=\frac{256}{65600}\approx0{,}0039024.
+\]
+
+O desvio-padrão posterior é aproximadamente \(0{,}0625\). Um intervalo central de credibilidade de 95% é definido pelos quantis \(q_{0{,}025}\) e \(q_{0{,}975}\) da \(\operatorname{Beta}(8,32)\), calculados exatamente em R com \`qbeta(c(.025,.975),8,32)\`.
+
+A interpretação correta é: **condicionalmente ao modelo, aos dados e à priori**, a probabilidade posterior de \(p\) pertencer ao intervalo é 95%. Isso difere da interpretação frequentista de um intervalo de confiança, que diz respeito à cobertura de um procedimento em amostragens repetidas.
+
+## 6. Probabilidades e decisões posteriores
+
+Uma pergunta substantiva pode ser: qual é a probabilidade de \(p>0{,}25\)? Calculamos
+
+\[
+P(p>0{,}25\mid y)=1-F_{\operatorname{Beta}(8,32)}(0{,}25),
+\]
+
+em que \(F\) é a função de distribuição acumulada. Em R: \`1-pbeta(.25,8,32)\`. Isso é uma probabilidade posterior sobre um parâmetro, não a probabilidade de que uma política tenha causado determinado resultado. Uma regra de decisão exigiria ainda definir perdas, benefícios, custos e ações alternativas. Por exemplo, decidir ampliar um serviço requer considerar a capacidade institucional e os custos de erros de decisão; uma probabilidade posterior isolada não resolve a escolha pública.
+
+## 7. Predição posterior
+
+Suponha que observaremos \(m=5\) novos casos da mesma população, sob o mesmo mecanismo. Seja \(\widetilde Y\) o número futuro de sucessos. Em vez de fixar \(p\) na média posterior, integramos sua incerteza:
+
+\[
+P(\widetilde Y=k\mid y)=
+\int_0^1 P(\widetilde Y=k\mid p)\pi(p\mid y)\,dp.
+\]
+
+Para \(A=a+y\), \(B=b+n-y\), obtemos a distribuição Beta–Binomial:
+
+\[
+P(\widetilde Y=k\mid y)=
+\binom{m}{k}\frac{B(A+k,B+m-k)}{B(A,B)},
+\]
+
+onde \(B(\cdot,\cdot)\) é a função beta. O valor esperado é \(E[\widetilde Y\mid y]=mA/(A+B)=5(8/40)=1\). É a quantidade média predita de sucessos em cinco novas tentativas, não uma garantia de um sucesso. A predição depende de estabilidade do processo; mudanças de elegibilidade, mercado de trabalho ou desenho da intervenção podem torná-la inadequada.
+
+## 8. Sensibilidade à priori
+
+Compare três escolhas: \(\operatorname{Beta}(1,1)\), \(\operatorname{Beta}(2,18)\) e \(\operatorname{Beta}(10,10)\). Com os mesmos seis sucessos em vinte tentativas, as médias posteriores são, respectivamente, \(7/22\approx0{,}3182\), \(8/40=0{,}20\) e \(16/40=0{,}40\). A última priori tinha média 0,5 e maior concentração que a uniforme; por isso puxa a posterior para cima.
+
+Não existe justificativa para selecionar a priori que produz o resultado politicamente desejado. O procedimento defensável é documentar escolhas **antes** da análise principal, explicitar fontes e apresentar alternativas plausíveis. Em amostras pequenas, diferenças grandes entre posteriores são informação relevante sobre a fragilidade da conclusão. Com amostras maiores, a influência relativa de prioris próprias e regulares tende a diminuir em muitos modelos identificáveis, mas isso não elimina problemas de especificação ou seleção.
+
+## 9. Inferência bayesiana não é identificação causal
+
+A atualização Bayesiana diz como inferir parâmetros **dado um modelo**. A identificação causal pergunta se os dados e o desenho permitem recuperar o contraste contrafactual de interesse. Uma posterior estreita de \(p\) não corrige confundimento, viés de seleção, perda de acompanhamento ou erro de mensuração. Para a agenda NIB, uma posterior da proporção de empresas financiadas que aumentaram emprego é descritiva; o ATT de financiamento sobre emprego exigiria grupo contrafactual, temporalidade, definição de tratamento e hipóteses de identificação. Para a agenda PcD, o mesmo vale para permanência entre usuários de tecnologias assistivas. A posterior pode expressar incerteza **sobre** um estimando causal depois que o desenho o identifica, mas não substitui o desenho.
+
+## 10. Laboratório em R e protocolo de dados
+
+O arquivo \`exercicios_07.R\` usa apenas R base e lê \`dados/amostras/aula_07/coorte_sintetica.csv\`. A amostra é determinística, pequena, explicitamente fictícia e não requer baixar microdados. O gerador separado \`gerar_amostra_07.R\` é opcional; sua execução não é pré-requisito. O manifesto e o dicionário registram origem, data, variáveis, parâmetros e limites.
+
+Execute na raiz do repositório:
+
+\`\`\`r
+d <- read.csv("dados/amostras/aula_07/coorte_sintetica.csv")
+stopifnot(nrow(d)==20, all(d$sucesso %in% 0:1))
+n <- nrow(d); y <- sum(d$sucesso)
+a <- 2; b <- 18
+A <- a+y; B <- b+n-y
+c(n=n,y=y,media_prior=a/(a+b),
+  proporcao=y/n,media_posterior=A/(A+B))
+qbeta(c(.025,.975),A,B)
+1-pbeta(.25,A,B)
+m <- 5
+k <- 0:m
+pred <- choose(m,k)*beta(A+k,B+m-k)/beta(A,B)
+stopifnot(abs(sum(pred)-1)<1e-10)
+data.frame(k,probabilidade=pred)
+\`\`\`
+
+\`sum\` conta os sucessos; \`qbeta\` retorna quantis da posterior; \`pbeta\` calcula a função acumulada; \`beta\` implementa a função beta na fórmula preditiva. O script integral compara prioris e salva resultados em diretório de saída local. A análise é inferência condicional **sobre dados sintéticos**, não inferência para a população brasileira.
+
+## 11. Estudo crítico
+
+Uma secretaria anuncia que, entre 20 pessoas que receberam um dispositivo assistivo, seis permaneceram no emprego após doze meses. Um relatório aplica a priori \(\operatorname{Beta}(2,18)\), calcula média posterior de 20% e afirma que "o dispositivo aumenta em 20% a permanência". Identifique quatro problemas. Primeiro, 20% é uma probabilidade de sucesso, não uma diferença entre resultados potenciais. Segundo, falta comparação contrafactual; o grupo pode ter características anteriores distintas. Terceiro, a priori de 10% exige justificativa externa. Quarto, a independência e homogeneidade binomial podem falhar se pessoas estiverem agrupadas por empresa ou tiverem necessidades heterogêneas. Ainda seria necessário definir "permanência", horizonte, perdas de seguimento e elegibilidade. Uma conclusão legítima seria apenas a distribuição posterior **condicional** para a taxa de sucesso nesse modelo simplificado.
+
+## 12. Exercícios graduais
+
+1. **Conceitual.** Explique a diferença entre verossimilhança e posterior, identificando o papel da priori.
+2. **Atualização.** Para priori Beta(1,1) e \(y=3,n=10\), derive a posterior e sua média.
+3. **Interpretação.** Para a posterior Beta(8,32), formule corretamente a interpretação de um intervalo central de credibilidade de 95%.
+4. **Predição.** Para Beta(8,32), calcule o valor esperado de sucessos em cinco novas tentativas e explique por que a distribuição preditiva não equivale a uma binomial com \(p=0{,}2\) fixo.
+5. **Sensibilidade e desenho.** Compare as três prioris propostas e indique o que precisaria mudar no desenho para estudar um efeito causal do financiamento industrial ou da provisão de tecnologias assistivas.
+
+O gabarito comentado está em \`resolucoes_07.qmd\`.
+
+## 13. Agenda de 60 minutos para os dois dias
+
+**Segunda-feira, 16/11:** (1) 60 min — revisão da distinção entre estimando e identificação; regra de Bayes e verossimilhança; (2) 60 min — Beta, conjugação e exemplo numérico com cálculo manual; (3) 60 min — laboratório R: posterior, intervalo e predição; (4) 60 min opcionais — leitura dirigida e comparação de prioris.
+
+**Terça-feira, 17/11:** (1) 60 min — exercícios 1 e 2, sem consultar o gabarito; (2) 60 min — exercícios 3 e 4 e execução da predição; (3) 60 min — exercício 5, estudo crítico e protocolo do projeto integrador; (4) 60 min opcionais — análise de sensibilidade e revisão da documentação dos dados.
+
+## 14. Leituras confirmadas e limites
+
+Na biblioteca foi localizado *Statistical Rethinking*, 2ª ed., de Richard McElreath: capítulo 2, seções 2.2–2.4 (construção e componentes do modelo); capítulo 3, seções 3.1–3.3 (amostragem posterior, resumos e predição). Também foi localizado *Bayesian Methods: A Social and Behavioral Sciences Approach*, 3ª ed., de Jeff Gill, com discussão explícita da priori conjugada beta e do modelo beta-binomial no capítulo 4. Não atribuí páginas não verificadas. Para aprofundamento, as demais obras listadas na ementa podem ser consultadas posteriormente; não afirmamos ter confirmado seus capítulos nesta execução.
+
+## 15. Entrega cumulativa
+
+Criar \`projeto_integrador/semana_03/protocolo_bayes_07.md\` com: população e janela temporal; variável binária e regra de classificação; \(n,y\) sintéticos; duas prioris justificadas; posterior, intervalo e predição; análise de sensibilidade; distinção entre descrição, predição e causalidade; e plano de migração para dados oficiais **somente no projeto final**. Na trilha NIB, considerar um indicador verificável de cumprimento de metas entre estabelecimentos apoiados, sem equipará-lo a impacto. Na trilha PcD, considerar permanência após acompanhamento assistivo, sem extrapolar os vinte casos fictícios. Registrar fontes oficiais candidatas, seus níveis de agregação e a necessidade de microdados, pesos e desenho amostral quando a pergunta for individual.
+
+**Conexão:** as Aulas 5 e 6 ensinaram o que é preciso para identificação causal. Esta aula ensina a atualizar incerteza probabilística sobre parâmetros. Na Aula 8, estudaremos MCMC para posteriores que não admitem atualização analítica simples, sem antecipar hoje seus algoritmos.
