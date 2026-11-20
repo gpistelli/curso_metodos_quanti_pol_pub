@@ -1,0 +1,3 @@
+variavel,tipo,descricao,dominio,origem
+tempo,inteiro,Índice de tempo na trajetória sintética,1 a 12,gerador determinístico
+observado,inteiro,Indicador binário hipotético observado (0 desfavorável; 1 favorável),0 ou 1,gerador determinístico
