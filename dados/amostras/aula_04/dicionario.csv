@@ -1,0 +1,7 @@
+variavel,tipo,descricao
+id,inteiro,Identificador ficticio
+investimento,inteiro,Indice arbitrario de investimento
+porte,inteiro,Indice arbitrario de porte
+programa,binaria,Participacao ficticia em programa
+salario,numerica,Remuneracao media ficticia em milhares
+formal,binaria,Indicador ficticio de formalizacao

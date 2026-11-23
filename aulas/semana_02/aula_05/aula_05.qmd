@@ -1,0 +1,172 @@
+---
+title: "Aula 05/18 — Causalidade: resultados potenciais, DAGs, confundimento e seleção"
+date: 2026-11-11
+lang: pt-BR
+format: html
+---
+
+# Objetivos
+
+1. Distinguir associação, predição, causalidade e simulação de mecanismos.
+2. Formular intervenções e estimandos ATE e ATT.
+3. Explicar o problema fundamental da inferência causal.
+4. Interpretar DAGs e identificar caminhos de confundimento.
+5. Diferenciar confundidores, mediadores, colisores e seleção.
+6. Reconhecer consistência, intercambialidade e positividade.
+7. Executar um laboratório reprodutível sem atribuir efeitos populacionais a dados fictícios.
+
+# 1. Por que regressão não basta?
+
+Nas aulas 1 a 4 definimos estimandos, funções, probabilidades, inferência e regressão. A regressão permite estimar associações condicionais. Mas uma política industrial não é distribuída aleatoriamente: estabelecimentos mais produtivos podem obter financiamento e remunerar melhor independentemente dele. Logo, o coeficiente de uma regressão entre financiamento e remuneração não é automaticamente um efeito.
+
+A pergunta substantiva do projeto integrador é: **qual seria a qualidade e a inclusão do emprego se uma unidade elegível recebesse uma intervenção industrial, comparada à situação em que a mesma unidade não a recebesse?** O tratamento deve ser definido operacionalmente: por exemplo, concessão de uma linha específica de crédito, em determinado período, para estabelecimentos elegíveis. "Estar alinhado à NIB" é uma característica textual ou classificatória, não necessariamente uma intervenção.
+
+A alternativa sobre pessoas com deficiência (PcD) exige o mesmo rigor. Uma intervenção bem definida poderia ser oferta de avaliação, fornecimento e acompanhamento de tecnologia assistiva. "Ter deficiência" não é uma intervenção manipulável única; tampouco o uso observado de uma tecnologia implica atribuição aleatória.
+
+# 2. Resultados potenciais e estimandos
+
+Para a unidade i, defina A_i=1 quando recebe o tratamento e A_i=0 quando não recebe. Y_i(1) é seu resultado potencial com tratamento e Y_i(0), sem tratamento. O efeito individual é:
+
+$$\tau_i=Y_i(1)-Y_i(0).$$
+
+O resultado observado satisfaz:
+
+$$Y_i=A_iY_i(1)+(1-A_i)Y_i(0).$$
+
+Essa igualdade expressa a **consistência**, sob uma intervenção bem especificada. Não observamos simultaneamente os dois potenciais para a mesma unidade: é o problema fundamental da inferência causal.
+
+Para a população-alvo:
+
+$$ATE=E[Y(1)-Y(0)].$$
+
+Para as unidades tratadas:
+
+$$ATT=E[Y(1)-Y(0)\mid A=1].$$
+
+ATE e ATT podem diferir quando os efeitos são heterogêneos. Se o tratamento é concedido preferencialmente a empresas de maior capacidade tecnológica, o efeito médio nelas não precisa representar o efeito entre todas as empresas elegíveis.
+
+Um contraste observacional, por sua vez, é:
+
+$$D=E[Y\mid A=1]-E[Y\mid A=0].$$
+
+Somando e subtraindo o contrafactual médio das tratadas:
+
+$$D=ATT+\underbrace{E[Y(0)\mid A=1]-E[Y(0)\mid A=0]}_{\text{diferença de seleção}}.$$
+
+Portanto, D só coincide com ATT quando a diferença de seleção é zero, ou sob outra estratégia de identificação que recupere o contrafactual.
+
+**Descritivo:** D descreve uma diferença observada. **Causal:** ATT contrasta resultados potenciais. **Preditivo:** prever Y para novos casos não identifica Y(1)-Y(0). **Simulação:** impor regras hipotéticas pode explorar mecanismos, mas não os valida empiricamente.
+
+# 3. DAGs: hipóteses causais explícitas
+
+Um grafo acíclico direcionado (DAG) contém nós, que representam variáveis, e setas, que representam hipóteses de relações causais diretas. Não pode conter ciclos direcionados. DAGs codificam hipóteses substantivas; não são resultados inferidos automaticamente de correlações.
+
+Considere:
+- C: produtividade anterior;
+- A: concessão de financiamento;
+- Y: qualidade posterior do emprego.
+
+O DAG hipotético é `C -> A -> Y` e `C -> Y`. O caminho `A <- C -> Y` é um **caminho de porta dos fundos**: C é causa comum de A e Y. Ajustar adequadamente por C, quando observado antes do tratamento e suficiente junto às demais covariáveis, pode bloquear esse caminho.
+
+**Mediador:** `A -> M -> Y`. Por exemplo, financiamento pode estimular investimento tecnológico M, que altera remuneração Y. Controlar M remove parte do efeito total e pode introduzir outros vieses. Se queremos o efeito total, não ajustamos mecanicamente por todos os mediadores.
+
+**Colisor:** `A -> S <- U -> Y`. S recebe duas setas; restringir a amostra a S=1 ou ajustar por S pode abrir um caminho espúrio entre A e U. Exemplo: selecionar apenas empresas que sobreviveram quando sobrevivência depende tanto do apoio quanto de capacidade gerencial não observada.
+
+**Causalidade reversa:** resultados anteriores podem influenciar a concessão futura; a ordenação temporal e as regras de elegibilidade precisam ser documentadas.
+
+Um DAG não prova que os caminhos ausentes realmente não existam. A decisão sobre quais variáveis controlar requer teoria, conhecimento institucional e cronologia.
+
+# 4. Identificação: três condições centrais
+
+**Consistência:** a intervenção A=1 precisa representar versões suficientemente bem definidas para relacionar Y observado ao potencial correspondente. "Receber alguma política industrial" mistura programas, intensidades e momentos distintos. Interferência entre empresas, via concorrência e encadeamentos produtivos, também exige atenção; o pressuposto de ausência de interferência não é automático.
+
+**Intercambialidade condicional:** para covariáveis pré-tratamento L,
+
+$$\{Y(0),Y(1)\}\perp\!\!\!\perp A\mid L.$$
+
+O símbolo significa independência condicional: dentro de estratos comparáveis de L, a atribuição não depende de prognósticos potenciais não observados. Em estudos observacionais, é uma hipótese forte e não testável diretamente a partir dos resultados observados.
+
+**Positividade:** para todos os valores de L relevantes na população-alvo,
+
+$$0<P(A=1\mid L=l)<1.$$
+
+Se empresas de determinado porte nunca recebem o financiamento, não há comparação empírica direta para esse estrato. Extrapolar o efeito para ele exige pressupostos adicionais.
+
+Sob consistência, intercambialidade condicional, positividade e definição apropriada de população, a padronização identifica:
+
+$$E[Y(a)]=\sum_l E[Y\mid A=a,L=l]P(L=l),$$
+
+para L discreto; com L contínuo, a soma é substituída por uma integral. Essa fórmula calcula médias condicionais de resultados e as pondera pela distribuição das covariáveis na população-alvo.
+
+# 5. Exemplo numérico: paradoxo de composição
+
+Considere 200 estabelecimentos **inteiramente fictícios** em dois estratos de produtividade prévia, com resultado binário de emprego de qualidade. A tabela abaixo não representa empresas brasileiras:
+
+| Produtividade prévia | Tratamento | Resultado 1 | Total | Taxa |
+|---|---|---:|---:|---:|
+| Alta | Sim | 72 | 90 | 80% |
+| Alta | Não | 9 | 10 | 90% |
+| Baixa | Sim | 1 | 10 | 10% |
+| Baixa | Não | 20 | 90 | 22,22% |
+
+Entre tratadas, a taxa agregada é (72+1)/100 = 73%. Entre não tratadas, (9+20)/100 = 29%. A diferença bruta é **+44 pontos percentuais**.
+
+Contudo, dentro de cada estrato, as tratadas têm taxas menores: -10 p.p. em produtividade alta e aproximadamente -12,22 p.p. em produtividade baixa. Isso é um exemplo didático de reversão por composição (paradoxo de Simpson).
+
+Padronizando para uma população-alvo com metade das empresas em cada estrato:
+
+$$\mu_1=0{,}5(0{,}80)+0{,}5(0{,}10)=0{,}45,$$
+
+$$\mu_0=0{,}5(0{,}90)+0{,}5(20/90)\approx0{,}5611.$$
+
+O contraste padronizado é **-11,11 p.p.**. A diferença entre +44 p.p. e -11,11 p.p. ilustra o papel da composição. O segundo número só teria interpretação causal sob as hipóteses de identificação; em dados sintéticos, ambos são operações pedagógicas, não evidências de impacto.
+
+# 6. Laboratório em R
+
+O arquivo `exercicios_05.R` lê a tabela versionada, confere totais e calcula taxas brutas, estratificadas e padronizadas. Nenhuma instalação de pacote é necessária. Execute a partir da raiz do repositório:
+
+```r
+d <- read.csv("dados/amostras/aula_05/celulas_ficticias.csv")
+stopifnot(sum(d$n) == 200, all(d$sucessos <= d$n))
+d$taxa <- d$sucessos / d$n
+aggregate(cbind(sucessos, n) ~ tratamento, d, sum)
+aggregate(taxa ~ produtividade + tratamento, d, identity)
+mu1 <- mean(d$taxa[d$tratamento == "sim"])
+mu0 <- mean(d$taxa[d$tratamento == "nao"])
+c(bruta = 73/100 - 29/100, padronizada = mu1 - mu0)
+```
+
+A média simples das duas taxas por tratamento corresponde aqui à padronização com pesos 50%/50%, definidos explicitamente; em outro alvo, os pesos mudariam. A amostra foi deliberadamente construída e não admite inferência para população real. Um script gerador separado registra a semente fixa e pode reproduzir o CSV, mas **não é pré-requisito** do laboratório.
+
+# 7. Estudo crítico: emprego, sobrevivência e seleção
+
+Considere uma avaliação que mede salários somente entre trabalhadores que permaneceram empregados após um programa de modernização industrial. A política pode afetar a própria permanência no emprego. Além disso, capacidade produtiva, saúde e qualificação podem influenciar tanto permanência quanto salário. Condicionar a análise a estar empregado após o tratamento pode selecionar subconjuntos diferentes sob cada cenário contrafactual.
+
+Uma regressão de salários apenas entre ocupados pode então responder à pergunta "qual é a associação salarial entre sobreviventes observados?", não "qual é o efeito da política sobre a qualidade do emprego na população elegível?". O desfecho deve ser definido considerando saídas do emprego: por exemplo, renda do trabalho com tratamento explícito dos não ocupados, probabilidade de ocupação ou um conjunto de resultados. Diferentes estimandos respondem a questões distintas.
+
+Na alternativa PcD/tecnologias assistivas, pessoas com maior necessidade funcional podem ser mais propensas a receber dispositivos e apresentar piores resultados ocupacionais antes do atendimento. A comparação simples entre usuários e não usuários pode sugerir equivocadamente que a tecnologia prejudica a inserção. É necessário definir elegibilidade, necessidade prévia, barreiras ambientais e cronologia, sem ajustar por consequências posteriores da própria intervenção.
+
+# 8. Exercícios graduais
+
+1. Defina ATE e ATT para financiamento industrial e explique por que podem diferir.
+2. A partir da tabela fictícia, calcule a diferença bruta e as duas diferenças estratificadas.
+3. Padronize as taxas com pesos de 50% para produtividade alta e baixa; compare com a diferença bruta.
+4. Desenhe os DAGs `C -> A -> Y; C -> Y`, `A -> M -> Y` e `A -> S <- U -> Y`. Identifique confundidor, mediador e colisor.
+5. Analise a hipótese de positividade quando somente grandes empresas são elegíveis ao crédito. Proponha uma população-alvo defensável.
+6. Escreva uma intervenção bem definida para tecnologias assistivas, um desfecho, horizonte temporal e três covariáveis pré-tratamento; explique um risco de seleção.
+
+Resoluções detalhadas estão em `resolucoes_05.qmd`.
+
+# 9. Plano de estudo
+
+**Quarta-feira, 11/11:** (1) 60 min: resultados potenciais, ATE/ATT e decomposição; (2) 60 min: DAGs, caminhos e variáveis; (3) 60 min: identificação, exemplo numérico e laboratório R; (4) 60 min opcional: leitura dirigida de Hernán e Robins, capítulos 1 e 3.
+
+**Quinta-feira, 12/11:** (1) 60 min: exercícios 1 a 3 sem gabarito; (2) 60 min: exercícios 4 e 5, redesenho dos DAGs; (3) 60 min: exercício 6, estudo crítico e protocolo cumulativo; (4) 60 min opcional: comparação dos pressupostos com Imai e Rosenbaum. Domingo permanece livre.
+
+# 10. Leituras e projeto cumulativo
+
+Hernán e Robins, *Causal Inference: What If*, versão de 19/08/2026, disponível na biblioteca: capítulo 1 (seções 1.1–1.5), capítulo 3 (seções 3.1–3.6). Esses títulos e seções foram confirmados no sumário do arquivo. Para DAGs, consultar também o tratamento de diagramas causais na obra; não atribuímos aqui numeração de seção não verificada. Imai, *Quantitative Social Science*, e Rosenbaum, *Design of Observational Studies*, são referências complementares; suas subdivisões não foram conferidas nesta execução.
+
+**Entrega até quinta-feira:** `projeto_integrador/semana_02/protocolo_causal.md` (a ser elaborado pelo estudante, sem sobrescrever arquivos prévios): pergunta causal; intervenção, elegibilidade, população, unidade, período, ATE/ATT; DAG com justificativas; covariáveis pré-tratamento; possíveis mediadores e colisores; consistência, intercambialidade, positividade; fontes oficiais candidatas e limitações. Registre um contraste descritivo separadamente e não o rotule como impacto.
+
+Esta aula se apoia na exogeneidade discutida na Aula 4 e prepara a discussão de estratégias de identificação da Aula 6, sem antecipar seus métodos. O relatório final, não os exercícios intermediários, poderá empregar bases oficiais completas e desenhos amostrais pertinentes.

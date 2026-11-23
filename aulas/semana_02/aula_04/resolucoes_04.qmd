@@ -1,0 +1,19 @@
+---
+title: "Aula 04 — Resoluções comentadas"
+lang: pt-BR
+format: html
+---
+
+# Gabarito
+
+1. $\\bar x=2{,}5$, $\\bar y=4$. O numerador é 7 e o denominador é 5: $\\hat\\beta_1=1{,}4$ e $\\hat\\beta_0=0{,}5$. Em $x=3$, previsão 4,7; resíduo 0,3. Associação, não causalidade.
+
+2. Porte e setor podem estar correlacionados com financiamento e com salários, de modo que a especificação simples pode incorporar diferenças de composição. A inclusão dessas variáveis não assegura exogeneidade; pode haver confundimento não observado, seleção e simultaneidade.
+
+3. $\\exp(\\log 1{,}5)=1{,}5$: chances 50% maiores condicionalmente. Chances iniciais $0{,}4/0{,}6=2/3$; novas chances $1$; probabilidade nova $1/(1+1)=0{,}5$. Aumento de 10 pontos percentuais, não 50 pontos percentuais.
+
+4. O erro-padrão HC1 permite variância residual diferente entre observações independentes, enquanto o erro-padrão clássico assume homocedasticidade. Nenhum corrige dependência intrafirma, seleção ou confundimento. Os resultados numéricos podem ser obtidos executando `exercicios_04.R`.
+
+5. Exemplo associativo: salário médio do estabelecimento (milhares) em função de investimento, porte e setor no ano $t$. Exemplo preditivo: prever formalização no ano $t+1$ usando covariáveis medidas até $t$ e avaliar em amostra temporal separada. Ameaças: cobertura, composição e vazamento temporal. Não atribuir causalidade aos coeficientes.
+
+6. Um valor-p pequeno indica incompatibilidade estatística com uma hipótese nula dentro de um modelo e de pressupostos de inferência, não identificação causal. Financiamento pode ser selecionado por produtividade prévia e outras características. É necessário definir tratamento, elegibilidade, estimando e estratégia de identificação.

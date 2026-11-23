@@ -1,0 +1,161 @@
+---
+title: "Aula 06/18 — Avaliação de impacto: experimentos, DiD, identificação e robustez"
+date: 2026-11-13
+lang: pt-BR
+format: html
+---
+
+# Objetivos
+
+1. Distinguir impacto causal de diferença observada.
+2. Definir ensaio-alvo, ATE, ATT e ITT.
+3. Explicar identificação por atribuição aleatória.
+4. Calcular diferenças-em-diferenças (DiD) e interpretar a hipótese de tendências paralelas.
+5. Relacionar o estimador DiD à regressão com interação.
+6. Diagnosticar antecipação, atrito, interferência e choques concorrentes.
+7. Elaborar protocolo de avaliação reproduzível de política industrial ou tecnologia assistiva.
+
+# 1. Motivação: o que constitui evidência de impacto?
+
+As aulas anteriores definiram estimandos, incerteza amostral, regressão e resultados potenciais. Hoje examinamos desenhos capazes de transformar uma comparação em estimativa causal sob hipóteses explícitas. Uma empresa beneficiária de financiamento industrial pode ter salários maiores por já ser mais produtiva. Uma pessoa com deficiência que utiliza tecnologias assistivas pode ter necessidades, barreiras e recursos diferentes dos não usuários. A comparação bruta não identifica o que teria ocorrido sem intervenção.
+
+O projeto integrador investiga transformação produtiva, políticas industriais orientadas por missões e qualidade/inclusão do emprego no Brasil. Podemos definir como tratamento o desembolso de uma linha específica de crédito, e como resultado a remuneração real média 12 meses depois. A mera menção textual a uma missão da Nova Indústria Brasil é **alinhamento documental**, não comprovação de financiamento nem efeito causal. Uma regressão de salários é **associativa**; um modelo para prever desligamento é **preditivo**; uma avaliação contrafactual busca identificação **causal**; a construção de trajetórias artificiais do laboratório é **simulação didática**, não evidência empírica.
+
+# 2. Ensaio-alvo e estimandos
+
+Imagine primeiro o experimento ideal. Quem seria elegível? Quando começa a exposição? O que constitui receber tratamento, e qual seria o comparador? Qual desfecho, horizonte e unidade de análise? Por exemplo, estabelecimentos elegíveis a crédito industrial em determinada data poderiam receber ou não uma oferta aleatória. Oferecer, aprovar e desembolsar recursos são tratamentos diferentes.
+
+Denote por $Y_i(1)$ o resultado potencial da unidade $i$ sob intervenção e $Y_i(0)$ sob controle. O efeito individual é $\tau_i=Y_i(1)-Y_i(0)$, mas não observamos simultaneamente ambos os resultados na mesma unidade. O efeito médio populacional é
+
+$$ATE=E[Y_i(1)-Y_i(0)].$$
+
+O efeito médio entre os efetivamente tratados é
+
+$$ATT=E[Y_i(1)-Y_i(0)\mid D_i=1],$$
+
+onde $D_i$ indica tratamento efetivo. ATE e ATT podem diferir por seleção e heterogeneidade de efeitos. Se $Z_i$ indica uma **oferta aleatória**, o efeito da intenção de tratar é
+
+$$ITT=E[Y_i\mid Z_i=1]-E[Y_i\mid Z_i=0].$$
+
+O ITT responde ao efeito da oferta, mesmo com não adesão; não deve ser rotulado como efeito de receber financiamento. Consistência requer versões bem definidas da intervenção; interferência entre empresas pode invalidar resultados potenciais que dependam apenas do tratamento da própria empresa.
+
+# 3. Experimentos e identificação
+
+Em uma atribuição aleatória, $Z_i$ é independente dos resultados potenciais. Sob consistência, ausência de interferência relevante e seguimento adequado, a diferença de médias por atribuição identifica o ITT:
+
+$$\widehat{ITT}=\bar Y_{Z=1}-\bar Y_{Z=0}.$$
+
+Se a atribuição equivale ao tratamento recebido, esse contraste também estima o ATE da população randomizada. A randomização equilibra características em **expectativa**, não necessariamente em cada amostra pequena. Não adesão, perdas de acompanhamento e contaminação exigem análise explícita. Se a randomização ocorre por município, não podemos tratar todos os trabalhadores do município como unidades independentes para calcular erros-padrão. A unidade de atribuição e o número de conglomerados importam.
+
+Em tecnologias assistivas, um experimento não pode ignorar direitos de acesso e necessidades clínicas. Pode ser possível comparar modalidades de apoio, intensidades ou sequenciamento ético de implementação, dependendo da legislação e do contexto institucional. A escolha do desenho deve partir da intervenção e da população, não de uma técnica estatística favorita.
+
+# 4. Diferenças-em-diferenças: ideia central
+
+Em muitos programas, não existe sorteio. Diferenças-em-diferenças (DiD) utiliza a mudança de um grupo de comparação como aproximação da trajetória contrafactual do grupo tratado. Denote $T$ como tratado, $C$ como controle, $0$ como pré e $1$ como pós. O estimador é
+
+$$\widehat\delta=(\bar Y_{T,1}-\bar Y_{T,0})-(\bar Y_{C,1}-\bar Y_{C,0}).$$
+
+A primeira parcela é a mudança média tratada; a segunda, a mudança média controle. A subtração elimina diferenças constantes entre grupos, mas não elimina tendências divergentes.
+
+**Exemplo numérico fictício:** o grupo tratado tem resultado 52 antes e 62 depois; o controle, 42 antes e 44 depois. A mudança tratada é 10, a controle é 2 e o DiD é $10-2=8$. A diferença simples após a intervenção é $62-44=18$, um contraste diferente. A interpretação causal de 8 unidades exige pressupostos.
+
+# 5. Tendências paralelas e demonstração
+
+A hipótese crucial não é igualdade dos níveis iniciais, mas igualdade da **mudança contrafactual sem tratamento**:
+
+$$E[Y_1(0)-Y_0(0)\mid D=1]=E[Y_1(0)-Y_0(0)\mid D=0].$$
+
+$Y_t(0)$ é o resultado potencial no período $t$ sem intervenção. O lado esquerdo é inobservável no pós para tratados. Não se pode provar a hipótese apenas olhando dados anteriores.
+
+A mudança observada entre tratados pode ser decomposta em efeito de tratamento mais mudança que teriam experimentado sem intervenção. Subtraindo a mudança dos controles, obtemos
+
+$$DiD=ATT_1+\{\Delta_T(0)-\Delta_C(0)\},$$
+
+onde $\Delta_g(0)$ é a mudança contrafactual média sem tratamento no grupo $g$. Sob tendências paralelas, o termo entre chaves é zero e o DiD identifica o ATT no pós. Também exigimos ausência de antecipação, mensuração comparável, composição adequada dos grupos e ausência de interferência não modelada.
+
+Uma firma pode antecipar contratações após anúncio da aprovação, antes do desembolso. Nesse caso, classificar o período entre aprovação e desembolso como pré pode contaminar a comparação. Fechamento seletivo de estabelecimentos pode alterar a população observada. Mudanças setoriais simultâneas podem afetar diferentemente os grupos.
+
+# 6. Regressão e inferência
+
+No caso de dois grupos e dois períodos, podemos estimar
+
+$$Y_{it}=\alpha+\gamma D_i+\lambda Post_t+\delta(D_i\times Post_t)+\varepsilon_{it}.$$
+
+Aqui $i$ identifica a unidade, $t$ o tempo, $D_i$ o grupo tratado, $Post_t$ o período posterior, $\alpha$ o nível inicial do controle, $\gamma$ a diferença inicial de níveis, $\lambda$ a mudança do controle e $\delta$ a interação DiD. O termo $\varepsilon_{it}$ é o resíduo. Com quatro células, o coeficiente de interação reproduz a dupla diferença de médias. A regressão não garante a hipótese de tendências paralelas.
+
+Se observamos repetidamente as mesmas firmas, os erros podem ser correlacionados dentro de cada firma. Para dados reais, precisamos de inferência apropriada ao agrupamento e ao número de unidades independentes; em poucos conglomerados, aproximações assintóticas convencionais podem ser inadequadas. Se a intervenção ocorre em momentos diferentes entre unidades, regressões tradicionais com efeitos fixos de unidade e tempo podem produzir comparações problemáticas quando os efeitos são heterogêneos. É necessário definir o estimando por coorte e período e escolher estimadores adequados. Esse alerta não exige antecipar métodos de aulas futuras.
+
+# 7. Robustez: como tentar refutar o desenho
+
+**Pré-tendências:** examine várias observações antes da intervenção, não apenas uma. Gráficos de trajetórias ajudam a detectar divergências, mas pré-tendências visualmente paralelas não provam a hipótese contrafactual. Testes podem ter baixo poder.
+
+**Placebo temporal:** atribua uma data fictícia de tratamento anterior à real e calcule um DiD apenas com dados pré. Um resultado grande sugere tendência diferencial ou outro problema, mas placebo nulo não garante identificação.
+
+**Placebo de desfecho:** escolha, justificadamente, um resultado que não deveria responder ao programa. Evite desfechos que possam ser afetados por mecanismos indiretos.
+
+**Atrito:** compare perdas e encerramentos de empresas entre grupos. Analisar apenas sobreviventes pode condicionar em variável afetada pelo tratamento e criar viés de seleção.
+
+**Interferência:** uma firma financiada pode contratar empregados de outra firma, alterando o resultado dos controles. A escolha da unidade de análise e da região de comparação deve considerar deslocamentos e encadeamentos.
+
+**Choques simultâneos:** outros subsídios, crises setoriais ou mudanças regulatórias podem produzir tendências distintas. Documente cronologia, elegibilidade e exposição concorrente. Registre todas as especificações testadas, não somente resultados favoráveis.
+
+# 8. Laboratório em R
+
+A amostra versionada possui oito estabelecimentos **sintéticos** (quatro tratados, quatro controles), cada um em três períodos relativos: -2, -1 e 0. O resultado segue uma regra determinística: tendência comum de 2 unidades por período e acréscimo de 8 somente aos tratados no período 0. Não são dados reais do Brasil.
+
+Execute a partir da raiz do repositório:
+
+~~~r
+d <- read.csv("dados/amostras/aula_06/painel_ficticio.csv")
+stopifnot(nrow(d)==24, length(unique(d$id))==8)
+d$grupo <- factor(d$grupo, levels=c("controle","tratado"))
+s <- subset(d, tempo %in% c(-1,0))
+m <- aggregate(resultado ~ grupo + post, s, mean)
+print(m)
+media <- function(g,p) m$resultado[m$grupo==g & m$post==p]
+did <- (media("tratado",1)-media("tratado",0)) -
+       (media("controle",1)-media("controle",0))
+print(did)
+stopifnot(isTRUE(all.equal(unname(did),8)))
+print(coef(lm(resultado ~ grupo*post, data=s)))
+pre <- subset(d, tempo %in% c(-2,-1))
+pre$post_falso <- as.integer(pre$tempo==-1)
+print(coef(lm(resultado ~ grupo*post_falso, data=pre)))
+~~~
+
+A função aggregate calcula médias por grupo e período; a interação em lm reproduz o DiD. O placebo utiliza exclusivamente períodos anteriores e deve produzir interação zero. Esses resultados são propriedades da construção didática, **não evidências de impacto de uma política brasileira**. O script completo acrescenta verificações e gráfico, sem dependências além do R base. Não é necessário executar o gerador opcional.
+
+# 9. Estudo crítico: Nova Indústria Brasil e emprego
+
+Considere um estudo hipotético que compara salários de empresas mencionadas em documentos relacionados às missões industriais com salários de empresas não mencionadas, antes e depois de 2025. O artigo anuncia efeito positivo da política, mas não possui registros de concessão de recursos, observa somente uma onda pré e exclui firmas encerradas.
+
+Primeiro, alinhamento textual não é tratamento. A variável pode refletir comunicação institucional, sem comprovar financiamento ou implementação. Segundo, uma única onda pré impede examinar tendências anteriores. Terceiro, excluir empresas que encerraram atividades pode induzir seleção pós-tratamento. Quarto, a evolução salarial pode refletir choques setoriais, produtividade anterior e mudanças de composição da força de trabalho.
+
+Uma avaliação mais defensável definiria a linha específica de financiamento, elegibilidade, datas de aprovação e desembolso e resultado em período determinado. Consideraria comparadores com trajetórias anteriores semelhantes, sem pressupor que isso prove tendências paralelas. A análise distinguiria remuneração por vínculo, emprego total, inclusão de PcD e permanência, evitando confundir melhoria salarial entre empregados sobreviventes com melhora geral da inclusão. O protocolo deveria discutir efeitos indiretos sobre concorrentes e fornecedores.
+
+Na alternativa PcD, o tratamento poderia ser a oferta de pacote de avaliação, adaptação, fornecimento de tecnologia assistiva e acompanhamento, não apenas posse de dispositivo. A seleção para atendimento pode depender de necessidades anteriores, recursos e barreiras. O desenho deve distinguir acesso, adesão, permanência e qualidade ocupacional.
+
+# 10. Exercícios
+
+1. Calcule o DiD para tratados 50→61 e controles 40→44; compare com a diferença pós.
+2. Explique por que níveis iniciais diferentes não invalidam automaticamente o DiD.
+3. Diferencie ITT da oferta e ATT do recebimento de crédito.
+4. Descreva um placebo temporal com três ondas e suas limitações.
+5. Explique por que restringir a amostra a firmas sobreviventes pode enviesar o resultado.
+6. Proponha um estimando e três diagnósticos para NIB ou tecnologias assistivas.
+
+As soluções comentadas estão em arquivo separado. Tente responder antes de consultá-las.
+
+# 11. Plano de estudos: dois dias
+
+**Sexta-feira, 13/11:** 60 min para ensaio-alvo, ATE, ATT e ITT; 60 min para cálculo e hipóteses de DiD; 60 min para regressão, laboratório e placebo; 60 min opcionais para leitura dos capítulos 4 e 7 de *Impact Evaluation in Practice*.
+
+**Sábado, 14/11:** 60 min para exercícios 1–3; 60 min para exercícios 4–5 e gráficos de pré-tendência; 60 min para exercício 6, estudo crítico e protocolo cumulativo; 60 min opcionais para leitura sobre atrito e interferência. Domingo livre.
+
+# 12. Bibliografia e entrega
+
+A biblioteca do projeto contém *Impact Evaluation in Practice*, com sumário verificado: capítulo 3, **Causal Inference and Counterfactuals**; capítulo 4, **Randomized Assignment**; capítulo 7, **Difference-in-Differences**, incluindo **The “Equal Trends” Assumption** e **Limitations of the Difference-in-Differences Method**; capítulo 9, **Addressing Methodological Challenges**, incluindo **Spillovers**, **Attrition** e **Timing and Persistence of Effects**. Como complemento conceitual, retome Hernán e Robins, *Causal Inference: What If*, sobre resultados potenciais e intervenções da aula anterior. Não atribuímos páginas não confirmadas.
+
+**Entrega cumulativa:** redigir um protocolo de avaliação em projeto_integrador/semana_02/protocolo_avaliacao.md: população, unidade, tratamento verificável, momento zero, comparador, ATT ou ITT, desfecho, horizonte, DAG, hipóteses, fontes oficiais candidatas, três diagnósticos e limitações. Incluir o script sobre CSV sintético versionado. Reservar bases completas para o projeto final. Agregados via API não substituem microdados individuais quando o estimando exige análise individual e desenho amostral. Registrar URL, data, versão, transformações e pacotes nas análises reais.
+
+**Conexão:** a Aula 5 introduziu o contrafactual; esta aula desenvolveu desenhos de identificação. A próxima aula, na data prevista, tratará da atualização bayesiana da incerteza, sem substituir pressupostos causais.

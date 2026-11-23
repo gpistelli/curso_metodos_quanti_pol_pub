@@ -1,0 +1,13 @@
+tipo: sintetico_didatico
+aula: 5
+data_criacao: "2026-11-11"
+fonte: "Construção pedagógica original; não deriva de observações reais"
+url_fonte: null
+versao: "1.0"
+semente_aleatoria: 20261111
+geracao: "dados/preparacao/aula_05_gerar_amostra.R"
+arquivo: "dados/amostras/aula_05/celulas_ficticias.csv"
+unidade: "célula agregada fictícia de produtividade anterior x tratamento"
+transformacoes: "sucessos e n especificados para ilustrar reversão por composição"
+pacotes: "R base"
+limitacoes: "não permite inferência populacional, teste de política real ou identificação causal"

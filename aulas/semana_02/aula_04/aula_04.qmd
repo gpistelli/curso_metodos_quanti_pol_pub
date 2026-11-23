@@ -1,0 +1,157 @@
+---
+title: "Aula 04/18 — Regressão linear e logística"
+subtitle: "MQO, exogeneidade, mensuração e inferência"
+date: 2026-11-09
+lang: pt-BR
+format: html
+execute:
+  echo: true
+  warning: false
+---
+
+# 1. Motivação e objetivos
+
+**Agenda:** relação entre transformação produtiva, políticas industriais orientadas por missões (incluindo a Nova Indústria Brasil), qualidade e inclusão do emprego. Alternativa: acesso a tecnologias assistivas e inserção laboral de pessoas com deficiência (PcD). A regressão permite resumir diferenças condicionais e prever resultados; **não transforma associação em causalidade**. Na Aula 1 definimos estimandos e validade; na Aula 2 estudamos funções, matrizes e probabilidade; na Aula 3 estudamos amostragem, erro-padrão, intervalos e verossimilhança. Hoje utilizaremos esses fundamentos em dois modelos.
+
+**Objetivos:** (1) interpretar regressões como projeções condicionais; (2) derivar MQO simples e sua forma matricial; (3) diferenciar exogeneidade, independência e ausência de confundimento; (4) identificar erros de mensuração e omissão de variáveis; (5) interpretar coeficientes, probabilidades, odds e razões de chances; (6) comparar inferência clássica e robusta; (7) executar uma análise reproduzível em R e formular limitações para o projeto.
+
+**Classificação explícita:** médias e tabelas são **descritivas**; regressões associativas são **descritivas/associativas**; previsões para novos casos são **preditivas** e exigem validação; efeitos de políticas são **causais** somente com identificação; cenários de agentes são **simulações de mecanismos**, não abordadas nesta aula.
+
+# 2. Regressão linear: o que estamos modelando?
+
+Considere estabelecimentos industriais hipotéticos. Para cada estabelecimento $i$, observamos remuneração média $Y_i$ (em milhares de reais), investimento tecnológico $X_i$ (em unidades convencionais) e participação em um programa $D_i\in\{0,1\}$. Um modelo linear simples é
+
+$$Y_i=\beta_0+\beta_1X_i+u_i.$$
+
+$\beta_0$ é o intercepto (valor médio previsto quando $X=0$), $\beta_1$ é a inclinação (variação da previsão de $Y$ por unidade de $X$), e $u_i$ é o termo não explicado. Não se deve interpretar $u_i$ como mero erro de digitação: ele reúne determinantes não incluídos, desvios funcionais e choques. Uma reta pode ser uma boa aproximação local e inadequada para extrapolações.
+
+**Regressão da média condicional:** se $E(u_i\mid X_i)=0$, então $E(Y_i\mid X_i=x)=\beta_0+\beta_1x$. A notação $E(\cdot\mid X)$ indica expectativa condicional. Sem essa hipótese, a reta ajustada ainda pode ser interpretada como projeção linear, mas não necessariamente como a verdadeira função de esperança condicional.
+
+## 2.1. Mínimos quadrados ordinários (MQO)
+
+Para dados $(x_i,y_i)$, o MQO escolhe $b_0,b_1$ que minimizam a soma dos quadrados dos resíduos:
+
+$$S(b_0,b_1)=\sum_{i=1}^{n}(y_i-b_0-b_1x_i)^2.$$
+
+A condição de primeira ordem em $b_0$ fornece $\hat\beta_0=\bar y-\hat\beta_1\bar x$. Substituindo na condição em $b_1$, obtemos
+
+$$\hat\beta_1=\frac{\sum_i(x_i-\bar x)(y_i-\bar y)}{\sum_i(x_i-\bar x)^2},\qquad
+\hat\beta_0=\bar y-\hat\beta_1\bar x.$$
+
+A barra indica média amostral; o chapéu indica estimativa. O denominador precisa ser positivo: sem variação em $X$, não se estima a inclinação. Cada resíduo é $\hat u_i=y_i-\hat y_i$, em que $\hat y_i=\hat\beta_0+\hat\beta_1x_i$. Com intercepto, os resíduos somam zero e são ortogonais ao regressor observado.
+
+**Exemplo numérico resolvido.** Para $x=(1,2,3,4)$ e $y=(2,3,5,6)$, temos $\bar x=2{,}5$ e $\bar y=4$. O numerador da inclinação é $7$ e o denominador é $5$; logo $\hat\beta_1=1{,}4$, $\hat\beta_0=0{,}5$. Em $x=3$, a previsão é $\hat y=0{,}5+1{,}4(3)=4{,}7$, com resíduo $5-4{,}7=0{,}3$. A inclinação representa uma associação no conjunto inventado, não empregos ou salários criados causalmente por investimento.
+
+## 2.2. Regressão múltipla e matrizes
+
+Quando incluímos tamanho, setor ou escolaridade, escrevemos
+
+$$\mathbf y=\mathbf X\boldsymbol\beta+\mathbf u,$$
+
+em que $\mathbf y$ é um vetor $n\times1$, $\mathbf X$ é uma matriz $n\times k$ (primeira coluna de uns, se houver intercepto), $\boldsymbol\beta$ tem $k\times1$ parâmetros e $\mathbf u$ tem $n\times1$ erros. Se $\mathbf X$ possui posto completo, a solução MQO é
+
+$$\hat{\boldsymbol\beta}=(\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y.$$
+
+O símbolo $\top$ indica transposição; $^{-1}$ indica inversa. Em aplicações computacionais, prefira decomposições numéricas estáveis a calcular a inversa diretamente. A interpretação de $\beta_j$ é a variação na projeção associada a uma unidade de $X_j$, **mantidas as outras covariáveis fixas**. Isso não implica que possamos intervir em $X_j$ sem alterar os demais fatores.
+
+# 3. Exogeneidade, identificação e inferência
+
+Para a interpretação clássica de não viés condicional, uma condição central é
+
+$$E(u_i\mid\mathbf X)=0.$$
+
+Ela é mais forte do que $E(u_i)=0$ ou $\operatorname{Cov}(X_i,u_i)=0$ em geral. Na regressão múltipla, é importante especificar o conjunto de regressoras e o desenho de amostragem. A hipótese de exogeneidade não é verificável apenas olhando os resíduos de MQO, pois eles são ortogonais aos regressores por construção.
+
+**Omissão de variáveis.** Suponha que a verdadeira relação inclua produtividade prévia $Z$:
+
+$$Y=\beta_0+\beta_1X+\gamma Z+u.$$
+
+Ao omitir $Z$ numa regressão simples, o coeficiente de $X$ pode absorver parte da associação de $Z$ com $Y$. Em um modelo linear populacional apropriado, o viés por variável omitida é $\gamma\operatorname{Cov}(X,Z)/\operatorname{Var}(X)$. Seu sinal depende tanto do efeito/coeficiente de $Z$ quanto de sua associação com $X$. Por exemplo, empresas produtivas podem obter mais crédito e pagar salários maiores antes do financiamento. O coeficiente de crédito, então, não identifica automaticamente seu efeito.
+
+**Mensuração.** Erro clássico aditivo no regressor $X^*=X+v$, com $v$ independente do verdadeiro $X$ e do erro estrutural, tende a atenuar a inclinação em regressão simples: $\operatorname{plim}\hat\beta_1=\beta_1\operatorname{Var}(X)/[\operatorname{Var}(X)+\operatorname{Var}(v)]$. Esse resultado não vale indiscriminadamente para erros diferenciais, variáveis categóricas ou regressão múltipla. Indicadores de alinhamento textual às missões não são equivalentes a tratamento efetivo: um escore de similaridade não mede concessão de crédito nem resultado econômico.
+
+**Inferência.** Sob homocedasticidade, independência apropriada e especificação do modelo, $\operatorname{Var}(\hat{\boldsymbol\beta}\mid\mathbf X)=\sigma^2(\mathbf X^\top\mathbf X)^{-1}$. Heterocedasticidade significa $\operatorname{Var}(u_i\mid X_i)$ variável entre unidades. Nesse caso, os coeficientes MQO continuam os mesmos, mas erros-padrão homocedásticos podem ser inadequados. Uma estimativa robusta HC1 é
+
+$$\widehat V_{HC1}=\frac{n}{n-k}(X^\top X)^{-1}\left[\sum_i x_ix_i^\top\hat u_i^2\right](X^\top X)^{-1},$$
+
+em que $x_i$ é o vetor-coluna das regressoras da unidade $i$. HC1 não corrige confundimento nem dependência dentro de conglomerados. Dados de trabalhadores agrupados por estabelecimento podem exigir erros-padrão clusterizados; dados da PNAD Contínua exigem atenção ao desenho amostral, estratos, conglomerados e pesos. Um intervalo aproximado é $\hat\beta_j\pm t_{\nu,0{,}975}\widehat{SE}(\hat\beta_j)$, com graus de liberdade $\nu$ e hipóteses pertinentes.
+
+# 4. Regressão logística: resultados binários
+
+Quando o desfecho é binário, como formalização ($Y_i=1$ para formal e $0$ caso contrário), a regressão linear pode prever valores abaixo de zero ou acima de um. Uma alternativa é
+
+$$p_i=P(Y_i=1\mid\mathbf x_i)=\frac{1}{1+\exp(-\eta_i)},\quad \eta_i=\beta_0+\beta_1X_i+\beta_2D_i.$$
+
+$\exp$ é a função exponencial e $p_i$ é uma probabilidade entre zero e um. As *chances* (odds) são $p_i/(1-p_i)$, enquanto o logito é
+
+$$\log\frac{p_i}{1-p_i}=\eta_i.$$
+
+Assim, $\exp(\beta_1)$ é a **razão de chances condicional** para uma unidade adicional de $X$, mantendo os outros regressores fixos. Não é razão de probabilidades, diferença de pontos percentuais nem efeito causal automático.
+
+**Exemplo:** se $\beta_1=\log(2)$, a razão de chances é 2. Se a probabilidade inicial é 0,20, as chances iniciais são $0,20/0,80=0,25$; dobrando as chances, passam a 0,50 e a nova probabilidade é $0,50/(1+0,50)=1/3\approx0,333$. A probabilidade sobe 13,3 pontos percentuais, não 100 pontos percentuais. Se a probabilidade inicial fosse 0,70, a mesma razão de chances produziria outra diferença absoluta.
+
+O modelo logístico é geralmente estimado por **máxima verossimilhança**, com log-verossimilhança Bernoulli
+
+$$\ell(\boldsymbol\beta)=\sum_i\left[y_i\log(p_i)+(1-y_i)\log(1-p_i)\right].$$
+
+O algoritmo busca os coeficientes que maximizam essa expressão. Em amostras pequenas com separação perfeita, as estimativas usuais podem divergir. Verifique convergência, eventos raros, suporte e capacidade preditiva fora da amostra. Um modelo com boa acurácia não necessariamente é bem calibrado; classificação preditiva e explicação substantiva têm objetivos distintos.
+
+# 5. Laboratório reproduzível em R
+
+Os arquivos de dados desta aula são **sintéticos**, com semente fixa e sem inferência sobre Brasil, NIB, PcD ou empresas reais. Execute o script a partir da raiz do repositório; o CSV já está versionado. Não é necessário executar o gerador opcional. A regressão linear relaciona investimento e salário hipotéticos; a logística modela formalização hipotética.
+
+```{r}
+d <- read.csv("dados/amostras/aula_04/estabelecimentos_ficticios.csv")
+stopifnot(all(c("investimento","salario","formal","programa","porte") %in% names(d)))
+m1 <- lm(salario ~ investimento + porte + programa, data=d)
+print(summary(m1))
+m2 <- glm(formal ~ investimento + porte + programa, family=binomial(), data=d)
+print(summary(m2))
+print(exp(coef(m2)))  # razões de chances condicionais
+print(predict(m2, type="response")[1:5])
+```
+
+A função `lm()` calcula MQO; `glm(..., family=binomial())` ajusta o logito. `coef()` extrai parâmetros e `exp()` converte coeficientes log-odds em razões de chances. `predict(...,type="response")` retorna probabilidades ajustadas, não classificações causais. O script `exercicios_04.R` inclui verificações, gráficos simples e uma estimativa HC1 em R base. O gerador de dados e manifesto estão separados.
+
+# 6. Estudo crítico: emprego inclusivo e políticas de inovação
+
+Considere um artigo hipotético que estime $\log(\text{salário})$ em função de participação em financiamento, escolaridade, setor e porte, encontrando coeficiente positivo e estatisticamente significativo para financiamento. Outro modelo logístico indica razão de chances superior a 1 para emprego formal entre pessoas com acesso a tecnologias assistivas.
+
+**Primeira questão:** quem foi observado? A análise salarial pode selecionar somente ocupados, introduzindo seleção na amostra. No estudo de tecnologias assistivas, pessoas com acesso ao serviço podem diferir sistematicamente em renda, severidade funcional, rede de apoio, disponibilidade de serviços e vínculos prévios.
+
+**Segunda questão:** qual a unidade? Comparações entre municípios, estabelecimentos e indivíduos não são intercambiáveis. Proporções agregadas de PcD entre empregados não estimam o nível de ocupação individual das PcD.
+
+**Terceira questão:** o que foi medido? "Beneficiário" pode significar elegível, aprovado ou efetivamente financiado. A classificação setorial relacionada às missões industriais não prova alinhamento operacional. Um dispositivo de tecnologia assistiva não esgota o serviço de avaliação, adaptação e acompanhamento.
+
+**Quarta questão:** o que a inferência permite? Coeficientes ajustados e erros-padrão robustos informam associações condicionais e sua incerteza sob hipóteses. Eles não resolvem automaticamente confundimento, simultaneidade, causalidade reversa, erro de mensuração ou seleção.
+
+**Quinta questão:** a predição pode ser útil? Sim: modelos podem prever risco de desligamento ou identificar estabelecimentos para acompanhamento, desde que se avaliem calibração, discriminação, estabilidade temporal e consequências distributivas. Boa previsão não identifica o efeito de conceder um benefício.
+
+**Conclusão crítica:** o desenho de pesquisa precisa definir população, estimando, mecanismo, temporalidade e comparação plausível antes de interpretar regressões como efeitos. A análise aqui é **associativa**; uma afirmação **causal** exigirá hipóteses e desenho adicionais.
+
+# 7. Exercícios graduais
+
+1. Para $x=(1,2,3,4)$ e $y=(2,3,5,6)$, calcule $\hat\beta_0$, $\hat\beta_1$, $\hat y(3)$ e o resíduo da terceira observação.
+2. Explique por que adicionar porte e setor à regressão pode alterar o coeficiente de financiamento, e por que isso não garante causalidade.
+3. Se um coeficiente logístico é $\log(1{,}5)$, interprete-o; transforme uma probabilidade inicial de 0,40 após multiplicar as chances por 1,5.
+4. Compare os erros-padrão homocedástico e HC1 no script e explique quando a comparação é relevante. Por que HC1 não resolve dependência entre empregados da mesma empresa?
+5. Defina dois modelos para o projeto integrador: um descritivo/associativo e outro preditivo. Especifique desfecho, covariáveis, unidade, período e uma ameaça de validade.
+6. Critique a frase: "O coeficiente positivo de financiamento, com p<0,05, prova que a NIB causou crescimento salarial".
+
+As respostas comentadas estão em `resolucoes_04.qmd`.
+
+# 8. Plano de estudos — 09 e 10 de novembro
+
+**Segunda-feira (09/11):** (1) 60 min: retomar estimandos, regressão linear, projeção e exemplo MQO; (2) 60 min: regressão múltipla, matriz de desenho e exogeneidade; (3) 60 min: regressão logística, odds, logito e laboratório R; (4) 60 min opcional: leitura de Wooldridge, cap. 2 e 3, com fichamento de hipóteses.
+
+**Terça-feira (10/11):** (1) 60 min: resolver exercícios 1–3 sem gabarito; (2) 60 min: inferência robusta, mensuração e exercícios 4 e 6; (3) 60 min: exercício 5 e nota cumulativa do projeto; (4) 60 min opcional: Agresti, cap. 9 e 15, comparar interpretações linear/logística.
+
+**Entrega cumulativa:** `projeto_integrador/semana_02/nota_modelos.md`, com estimando, população, unidade, período, especificação linear e logística, codificação de variáveis, ameaças de validade, plano de diagnóstico e distinção entre associação, predição e efeito causal. Não executar microdados completos nesta etapa.
+
+# 9. Leituras
+
+- Jeffrey Wooldridge, *Introductory Econometrics: A Modern Approach*, capítulos 2 (modelo de regressão simples), 3 (regressão múltipla) e 8 (heterocedasticidade); localizar no exemplar da biblioteca, sem atribuir páginas.
+- Alan Agresti, *Statistical Methods for the Social Sciences*, 5ª ed., capítulo 9, seções 9.2–9.6; capítulo 10, seções 10.1–10.4; capítulo 15, seções 15.1–15.3. Seções confirmadas no sumário do arquivo da biblioteca.
+- Kosuke Imai, *Quantitative Social Science*, capítulos sobre regressão linear e inferência: leitura complementar; verificar o sumário antes de fixar subseções.
+
+**Conexão:** as Aulas 1–3 fundamentaram pergunta, formalização e incerteza; a Aula 4 aplica essas ideias a modelos de associação e predição. A próxima aula aprofundará a distinção entre associação e causalidade, sem que a presente aula antecipe seu conteúdo.

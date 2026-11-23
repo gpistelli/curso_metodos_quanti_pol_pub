@@ -1,0 +1,5 @@
+variavel,tipo,descricao
+produtividade,categoria,"Estrato hipotético de produtividade anterior: alta ou baixa"
+tratamento,categoria,"Concessão hipotética: sim ou nao"
+sucessos,inteiro,"Contagem fictícia com resultado binário favorável"
+n,inteiro,"Total fictício da célula"

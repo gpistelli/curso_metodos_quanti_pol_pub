@@ -1,0 +1,19 @@
+---
+title: "Aula 05 — Resoluções comentadas"
+lang: pt-BR
+format: html
+---
+
+# Gabarito
+
+1. ATE = E[Y(1)-Y(0)] na população elegível definida; ATT = E[Y(1)-Y(0)|A=1] entre tratados. Diferem quando há heterogeneidade de efeitos e seleção de unidades para o tratamento.
+
+2. Bruta: 73/100 - 29/100 = 0,44 (44 p.p.). Estrato alto: 72/90 - 9/10 = -0,10 (-10 p.p.). Estrato baixo: 1/10 - 20/90 = -0,12222 (-12,22 p.p.). A composição dos grupos produz reversão.
+
+3. Tratadas: 0,5(0,8)+0,5(0,1)=0,45. Não tratadas: 0,5(0,9)+0,5(20/90)=0,561111. Diferença -0,111111 (-11,11 p.p.). O resultado é apenas uma padronização aritmética; interpretação causal depende de consistência, intercambialidade e positividade.
+
+4. C é confundidor no caminho A <- C -> Y. M é mediador A -> M -> Y; controlá-lo não estima necessariamente efeito total. S é colisor A -> S <- U -> Y; condicionar S pode abrir associação espúria A-U e contaminar a comparação.
+
+5. Se pequenas empresas nunca recebem o crédito, P(A=1|porte=pequeno)=0, violando positividade para a população de todas as empresas. Uma alternativa é restringir o alvo às elegíveis com sobreposição observada, explicitando perda de generalização. Elegibilidade por si só não garante intercambialidade.
+
+6. Exemplo: oferta de avaliação multidisciplinar, dispositivo adaptado e acompanhamento durante 12 meses a trabalhadores PcD elegíveis; Y=permanência no emprego aos 12 meses. Covariáveis pré-tratamento: tipo de limitação funcional, histórico ocupacional e características do posto de trabalho. Não condicionar exclusivamente a quem permaneceu empregado após a oferta; isso pode introduzir seleção. Uma intervenção e um desfecho distintos podem ser igualmente válidos quando claramente definidos.

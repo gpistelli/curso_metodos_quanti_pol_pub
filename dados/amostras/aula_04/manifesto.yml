@@ -1,0 +1,12 @@
+tipo: "dados inteiramente sinteticos; nenhuma unidade real"
+fonte: "geracao deterministica para fins didaticos"
+url_fonte: null
+data_fonte: null
+versao: "1.0"
+data_criacao: "2026-11-09"
+semente: 20261109
+arquivo: estabelecimentos_ficticios.csv
+unidades: 24
+licenca: "material didatico do projeto"
+limitacoes: "nao representam empresas brasileiras; nao usar para inferencia populacional nem efeito causal"
+script_preparacao: dados/preparacao/aula_04_gerar_amostra.R
