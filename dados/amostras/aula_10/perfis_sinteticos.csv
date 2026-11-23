@@ -1,0 +1,17 @@
+id,vinculo,qualificacao,remuneracao,setor,exposicao_politica
+1,formal,alta,alta,industria,sim
+2,formal,alta,alta,industria,sim
+3,formal,alta,baixa,servicos,nao
+4,formal,baixa,alta,industria,sim
+5,formal,baixa,baixa,servicos,nao
+6,informal,baixa,baixa,servicos,nao
+7,informal,baixa,baixa,agro,nao
+8,informal,alta,baixa,servicos,nao
+9,formal,alta,alta,servicos,sim
+10,formal,baixa,baixa,industria,sim
+11,informal,baixa,baixa,agro,nao
+12,formal,alta,alta,industria,sim
+13,informal,alta,alta,servicos,nao
+14,formal,baixa,alta,industria,nao
+15,informal,baixa,alta,agro,nao
+16,formal,alta,baixa,servicos,sim
