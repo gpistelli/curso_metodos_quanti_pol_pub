@@ -1,0 +1,6 @@
+variavel,definicao,tipo,dominio,unidade,origem,limitacao
+territorio,Identificador de territorio hipotetico,caractere,T01 a T08,territorio,construcao ficticia,nao corresponde a municipio real
+exposicao,Categoria didatica arbitraria de exposicao,caractere,alta ou baixa,categoria,construcao ficticia,nao corresponde a programa real
+ocupados,Total ficticio de ocupados,inteiro,100,pessoas,construcao ficticia,nao e denominador populacional PcD
+formais,Numero ficticio de ocupados formais,inteiro,0 a ocupados,pessoas,construcao ficticia,nao representa estimativa oficial
+pcd_ocupados,Numero ficticio de PcD entre ocupados,inteiro,0 a ocupados,pessoas,construcao ficticia,nao permite calcular nivel de ocupacao PcD

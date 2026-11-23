@@ -1,0 +1,39 @@
+---
+title: "Aula 02 — Resoluções comentadas"
+date: "2026-11-04"
+lang: pt-BR
+format: html
+---
+
+# Resoluções
+
+## 1. Função afim
+\(f(5)=40+3(5)=55\). A derivada \(f'(x)=3\) é a inclinação matemática da função. Não permite afirmar que uma intervenção em \(x\) causaria aumento de três unidades em \(f\): a equação pode ser descritiva ou hipotética.
+
+## 2. Dimensões
+\(\mathbf X\) é \(4\times2\); \(\boldsymbol\beta\) é \(2\times1\). A terceira linha do produto vale \(1(50)+3(2)=56\). O produto \((2\times1)(4\times2)\) não é definido porque as dimensões internas, 1 e 4, não coincidem.
+
+## 3. Eventos
+\(P(F\cap B)=30/200=0,15\).
+\(P(F\mid B)=30/40=0,75\).
+\(P(B\mid F)=30/110=0,272727\).
+\(P(F\cup B)=P(F)+P(B)-P(F\cap B)=0,55+0,20-0,15=0,60\).
+Os denominadores diferem conforme a pergunta.
+
+## 4. Independência
+Não são independentes: \(P(F\mid B)=0,75\ne P(F)=0,55\). Equivalentemente, \(P(F\cap B)=0,15\ne P(F)P(B)=0,55(0,20)=0,11\). Isso é uma constatação estatística na tabela fictícia, não uma conclusão causal.
+
+## 5. Bayes e taxas-base
+\(P(A)=0,05\), \(P(+\mid A)=0,90\), \(P(+\mid A^c)=1-0,95=0,05\). Logo:
+\[
+P(A\mid +)=\frac{0,90(0,05)}{0,90(0,05)+0,05(0,95)}
+=\frac{0,045}{0,0925}\approx0,48649.
+\]
+Portanto, cerca de 48,65% dos positivos seriam verdadeiramente alinhados sob as premissas propostas. Não confundir desempenho de classificação com efeitos substantivos de uma política.
+
+## 6. Aplicação ao projeto
+Exemplo: \(P(\text{formal}\mid\text{estabelecimento beneficiário})\). Unidade: vínculo de trabalho em estabelecimentos da população definida; numerador: vínculos formais no grupo beneficiário; denominador: vínculos observados no grupo beneficiário. Sem informações sobre seleção, elegibilidade e resultados potenciais, essa probabilidade não identifica o efeito de conceder o benefício. Para PcD, poderia ser \(P(\text{ocupado}\mid\text{acesso a serviço assistivo})\), com população e período definidos; a seleção de usuários também impede interpretação causal automática.
+
+# Verificação reproduzível
+
+Execute \`source("aulas/semana_01/aula_02/exercicios_02.R")\` a partir da raiz do repositório. O script usa exclusivamente a tabela fictícia versionada.

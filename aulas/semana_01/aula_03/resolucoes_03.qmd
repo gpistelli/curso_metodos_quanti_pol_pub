@@ -1,0 +1,33 @@
+---
+title: "Aula 03 — Resoluções comentadas"
+lang: pt-BR
+format: html
+---
+
+# 1. Estimando, estimador, estimativa
+
+Se a população-alvo é o conjunto de trabalhadores de determinado universo e período, o estimando é sua proporção verdadeira de formalizados \(p\). O estimador é a regra \(\hat p=\sum_iY_i/n\), cuja distribuição varia conforme a seleção. A estimativa é o número efetivamente observado, por exemplo 0,64. A legitimidade da inferência depende do desenho ou modelo assumido.
+
+# 2. Intervalo para 81/150
+
+\(\hat p=81/150=0{,}54\). O erro-padrão i.i.d. estimado é \(\sqrt{0{,}54(0{,}46)/150}\approx0{,}04069\). A margem aproximada de 95% é \(1{,}96(0{,}04069)\approx0{,}07975\). O intervalo de Wald é aproximadamente \([0{,}4603;0{,}6197]\). Não interpretar como inferência nacional de dados fictícios.
+
+# 3. Tamanho amostral e viés
+
+Sob variância constante e independência, \(SE\propto1/\sqrt n\). A razão é \(\sqrt{100/400}=1/2\). Ampliar amostra enviesada não elimina viés de cobertura ou seleção.
+
+# 4. Bootstrap
+
+Com \(B=1000\) e \(B=5000\), o desvio-padrão das réplicas estima a incerteza do estimador. O número de réplicas controla erro Monte Carlo do próprio procedimento bootstrap; diferenças pequenas são esperadas. Com semente fixa, a execução é reproduzível. Para amostragem complexa, bootstrap i.i.d. ingênuo pode ser inválido.
+
+# 5. Máxima verossimilhança
+
+Para \(k=\sum_iY_i\), \(\ell(p)=k\log p+(n-k)\log(1-p)\). A condição de primeira ordem \(k/p-(n-k)/(1-p)=0\) implica \(p=k/n\). Para \(k=n\), a verossimilhança \(p^n\) cresce em \(p\) e atinge máximo na fronteira \(p=1\). Não há máximo interior nesse caso.
+
+# 6. Crítica ao relatório
+
+A seleção voluntária de 200 estabelecimentos não constitui, por si só, amostra probabilística do Brasil. O intervalo i.i.d. pode quantificar variabilidade hipotética de um modelo, mas não corrigir seleção, não resposta, cobertura e dependência. Seria necessário definir quadro, unidades, probabilidades de inclusão, pesos, desenho, desfechos e eventual estratégia de calibração. Se houver interesse causal, precisaremos ainda de desenho de identificação. O bootstrap sobre voluntários não resolve o problema.
+
+# Observação sobre o projeto integrador
+
+A nota de amostragem deve explicitar se o estimando é por trabalhador, estabelecimento ou território; indicadores agregados e microdados não são intercambiáveis. Os dados completos só serão mobilizados no relatório final, quando necessários e sob condições documentadas.

@@ -1,0 +1,33 @@
+dataset:
+  nome: "territorios_ficticios"
+  versao: "1.0.0"
+  tipo: "100% ficticio; exemplo didatico"
+  data_criacao: "2026-11-02"
+  arquivo: "territorios_ficticios.csv"
+  redistribuicao: "livre; dados gerados exclusivamente para o curso"
+fonte:
+  instituicao: "nao se aplica: nenhum dado empirico utilizado"
+  pesquisa: "nao se aplica"
+  url_oficial: null
+  versao_arquivo: null
+  contexto_documental:
+    - "https://www.gov.br/mdic/pt-br/composicao/se/cndi"
+    - "https://www.ibge.gov.br/estatisticas/sociais/trabalho/17270-pnad%20continua.html%20/17270-pnad-continua.html?edicao=37280"
+  data_consulta_contexto: "2026-11-02"
+amostragem:
+  metodo: "construcao deterministica manual de oito unidades ficticias"
+  semente_documentada: 20261102
+  sorteio_realizado: false
+  tamanho: 8
+  adequada_inferencia_populacional: false
+processamento:
+  script_documentado: "../../preparacao/aula_01_gerar_amostra.R"
+  pacote_externo: "nenhum; R base"
+  versao_r_projeto: "4.5.1 (renv.lock)"
+integridade:
+  algoritmo: "SHA-256"
+  hash_amostra: "a calcular na validacao local; nao inventado"
+limitacoes:
+  - "Nao sao observacoes brasileiras reais."
+  - "Nao representa distribuicao populacional ou amostra probabilistica."
+  - "Exposicao alta/baixa nao define tratamento causal."

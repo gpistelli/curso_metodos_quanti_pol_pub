@@ -1,0 +1,4 @@
+variavel,definicao,tipo,valores_validos,origem,transformacao,ausentes
+programa,Participação em programa fictício,categorica,sim ou nao,sintetica,nenhuma,nenhum
+formal,Indicador de vínculo formal fictício,categorica,sim ou nao,sintetica,nenhuma,nenhum
+n,Contagem de trabalhadores fictícios na célula,inteiro,inteiro nao negativo,sintetica,nenhuma,nenhum

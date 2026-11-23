@@ -1,0 +1,21 @@
+dataset:
+  nome: "Tabela de contingência fictícia - Aula 02"
+  versao: "1.0.0"
+  tipo: "dados_simulados_didaticos"
+  observacoes_agregadas: 4
+  total_unidades_ficticias: 200
+fonte:
+  instituicao: "nenhuma - exemplo sintético criado para o curso"
+  pesquisa: "não se aplica"
+  url_oficial: null
+  data_acesso: null
+  versao_arquivo: "1.0.0"
+preparacao:
+  script: "dados/preparacao/aula_02_gerar_tabela.R"
+  semente: 20261104
+  processo: "contagens fixas, sem sorteio; semente documentada por convenção"
+  download_necessario: false
+restricoes:
+  representa_dados_reais: false
+  inferencia_populacional_valida: false
+  finalidade: "ensino de probabilidades condicionais e matrizes"

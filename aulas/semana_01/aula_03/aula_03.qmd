@@ -1,0 +1,266 @@
+---
+title: "Aula 03/18 — Amostragem e inferência"
+subtitle: "Estimadores, intervalos de confiança, bootstrap e verossimilhança"
+date: 2026-11-06
+lang: pt-BR
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Motivação e objetivos
+
+A Aula 1 definiu perguntas, indicadores e estimandos; a Aula 2 formalizou probabilidades e condicionamento. Nesta aula, enfrentamos uma questão distinta: **como usar observações de uma amostra para aprender sobre uma população, quantificando a incerteza?** Imagine estimar a formalização de trabalhadores em setores associados à Nova Indústria Brasil (NIB), a qualidade dos empregos em empresas inovadoras ou a participação de pessoas com deficiência (PcD) em ocupações acessíveis. Não basta calcular a média da amostra. É necessário conhecer o processo de seleção e o estimando, e distinguir a variação amostral dos vieses de cobertura, mensuração e seleção.
+
+Ao final, o estudante deverá: (1) distinguir população, amostra, parâmetro, estimador e estimativa; (2) explicar amostragem probabilística e limitações de amostras por conveniência; (3) derivar erros-padrão e intervalos de confiança; (4) interpretar cobertura frequentista; (5) executar bootstrap não paramétrico; (6) formular e maximizar uma verossimilhança binomial; (7) documentar uma análise reproduzível sem extrapolar dados fictícios.
+
+# População, amostragem e estimandos
+
+Seja a população finita \(U=\{1,\ldots,N\}\), com \(N\) unidades e característica \(Y_i\). Sua média é
+
+$$
+\mu_U=\frac{1}{N}\sum_{i=1}^N Y_i.
+$$
+
+Para variável binária \(Y_i\in\{0,1\}\), a média é uma proporção. Em uma amostra \(s\) de tamanho \(n\), a média amostral é
+
+$$
+\bar Y=\frac{1}{n}\sum_{i\in s}Y_i.
+$$
+
+**Parâmetro:** \(\mu_U\), uma propriedade da população. **Estimador:** a regra \(\bar Y\), que varia entre amostras possíveis. **Estimativa:** o valor observado da regra após coletar uma amostra. A distribuição amostral descreve como o estimador variaria se repetíssemos o processo de seleção.
+
+Em amostragem aleatória simples sem reposição, todas as amostras de tamanho \(n\) têm igual probabilidade de seleção. Sob esse desenho, \(E_d(\bar Y)=\mu_U\), onde \(E_d\) denota expectativa sob a aleatoriedade do desenho amostral. Para amostras independentes e identicamente distribuídas de uma superpopulação, a média também é não viesada para \(E(Y)\), mas os dois estimandos não são idênticos por definição.
+
+Na prática, a PNAD Contínua possui desenho amostral complexo. Pesos, estratos, conglomerados e aspectos do plano de seleção precisam ser considerados para inferências populacionais. Uma amostra didática arbitrária de estabelecimentos ou trabalhadores **não** autoriza afirmações sobre o Brasil. Dados agregados de uma API tampouco substituem microdados quando a pergunta exige inferência individual.
+
+# Precisão, variância e erro-padrão
+
+Para observações independentes e identicamente distribuídas com variância populacional \(\sigma^2\),
+
+$$
+\operatorname{Var}(\bar Y)=\frac{\sigma^2}{n},
+\qquad
+SE(\bar Y)=\frac{\sigma}{\sqrt n}.
+$$
+
+O símbolo \(SE\) indica o desvio-padrão da **distribuição do estimador**, e não a dispersão individual dos dados. Como \(\sigma\) costuma ser desconhecido, estimamos a variância por
+
+$$
+s^2=\frac{1}{n-1}\sum_{i=1}^n(Y_i-\bar Y)^2,
+\qquad
+\widehat{SE}(\bar Y)=\frac{s}{\sqrt n}.
+$$
+
+O denominador \(n-1\) produz o estimador usual não viesado da variância sob amostragem i.i.d. Para amostragem aleatória simples sem reposição de uma população finita, aplica-se a correção \(1-n/N\) à variância da média, sob convenções adequadas para a variância finita:
+
+$$
+\widehat{\operatorname{Var}}_d(\bar Y)=
+\left(1-\frac nN\right)\frac{s^2}{n}.
+$$
+
+Em desenhos complexos, não se deve substituir o cálculo de variância do plano amostral pela fórmula i.i.d. sem justificativa.
+
+Para uma variável binária, \(p=P(Y=1)\) e \(\operatorname{Var}(Y)=p(1-p)\). Logo, sob amostragem i.i.d.,
+
+$$
+\widehat{SE}(\hat p)\approx
+\sqrt{\frac{\hat p(1-\hat p)}{n}},
+\quad \hat p=\frac{\sum_iY_i}{n}.
+$$
+
+**Equívoco comum:** multiplicar o tamanho amostral por quatro reduz aproximadamente à metade o erro-padrão, não o viés de seleção. Mais observações não corrigem automaticamente uma amostra mal selecionada.
+
+# Intervalos de confiança
+
+O teorema central do limite fornece, sob condições regulares e tamanho amostral suficientemente grande,
+
+$$
+\frac{\bar Y-\mu}{\sigma/\sqrt n}\ \overset{aprox.}{\sim}\ N(0,1).
+$$
+
+A notação \(N(0,1)\) indica distribuição normal padrão. Um intervalo bilateral aproximado de 95% para a média é
+
+$$
+IC_{95\%}=\bar y\pm1{,}96\,\widehat{SE}(\bar Y).
+$$
+
+O fator 1,96 é o quantil de 97,5% da normal padrão. Para médias normais com variância desconhecida e amostra i.i.d., usa-se frequentemente a distribuição t de Student com \(n-1\) graus de liberdade. Para proporções pequenas ou próximas de zero/um, o intervalo de Wald pode apresentar cobertura ruim; alternativas como Wilson merecem preferência.
+
+**Interpretação correta:** em repetições hipotéticas do procedimento amostral, aproximadamente 95% dos intervalos construídos pelo método cobrirão o parâmetro fixo, se seus pressupostos forem atendidos. Não é rigoroso afirmar, na interpretação frequentista, que o parâmetro tem probabilidade de 95% de pertencer ao intervalo específico já calculado.
+
+## Exemplo numérico resolvido
+
+Considere **100 observações binárias fictícias**, das quais 64 registram emprego formal. Admitamos provisoriamente uma amostra i.i.d. de uma população hipotética:
+
+$$
+\hat p=\frac{64}{100}=0{,}64.
+$$
+
+O erro-padrão aproximado é
+
+$$
+\widehat{SE}(\hat p)=
+\sqrt{\frac{0{,}64(0{,}36)}{100}}
+=\sqrt{0{,}002304}=0{,}048.
+$$
+
+A margem é \(1{,}96(0{,}048)=0{,}09408\). Portanto,
+
+$$
+IC_{95\%}^{Wald}=[0{,}54592;\,0{,}73408].
+$$
+
+O intervalo vai de aproximadamente **54,6% a 73,4%**. O cálculo é matematicamente válido sob a hipótese didática de amostragem i.i.d.; **não constitui intervalo de confiança para o Brasil**. Mesmo sob essa hipótese, a cobertura do Wald é apenas aproximada.
+
+# Bootstrap: aproximando a distribuição do estimador
+
+O bootstrap não paramétrico de Efron substitui a distribuição populacional desconhecida pela distribuição empírica da amostra. Para uma amostra i.i.d. de tamanho \(n\):
+
+1. Reamostre \(n\) observações **com reposição** da amostra original.
+2. Calcule o estimador na reamostra: \(\hat\theta^{*(b)}\).
+3. Repita \(B\) vezes, com \(b=1,\ldots,B\).
+4. Use a distribuição dos \(B\) valores para aproximar a incerteza.
+
+O erro-padrão bootstrap é o desvio-padrão dos valores \(\hat\theta^{*(1)},\ldots,\hat\theta^{*(B)}\). Um intervalo percentil usa os quantis empíricos de 2,5% e 97,5%.
+
+$$
+IC_{\mathrm{perc}}=
+\left[
+Q_{0{,}025}(\hat\theta^*),
+Q_{0{,}975}(\hat\theta^*)
+\right].
+$$
+
+O bootstrap **não** torna uma amostra não probabilística representativa. Tampouco é apropriado reamostrar indivíduos isoladamente quando há dependência por conglomerados ou estrutura temporal relevante: nesses casos, a unidade de reamostragem precisa refletir o desenho. Intervalos percentis também podem apresentar viés e cobertura inadequada em pequenas amostras ou estatísticas não regulares.
+
+# Verossimilhança e estimação
+
+Suponha \(Y_i\overset{iid}{\sim}\mathrm{Bernoulli}(p)\), com \(Y_i=1\) se a característica está presente e zero caso contrário. Cada observação tem função de probabilidade
+
+$$
+P(Y_i=y_i\mid p)=p^{y_i}(1-p)^{1-y_i}.
+$$
+
+Sob independência, multiplicamos as contribuições:
+
+$$
+L(p;\mathbf y)=
+\prod_{i=1}^n p^{y_i}(1-p)^{1-y_i}
+=p^k(1-p)^{n-k},
+$$
+
+onde \(k=\sum_i y_i\). Essa é a verossimilhança, considerada **função de \(p\)** para os dados observados \(\mathbf y\). O fator combinatório da distribuição binomial agregada não depende de \(p\) e não altera o máximo.
+
+O logaritmo transforma produtos em somas:
+
+$$
+\ell(p)=k\log p+(n-k)\log(1-p).
+$$
+
+Derivando para \(0<p<1\),
+
+$$
+\ell'(p)=\frac{k}{p}-\frac{n-k}{1-p}.
+$$
+
+Igualando a zero:
+
+$$
+k(1-p)=(n-k)p\ \Longrightarrow\ \hat p_{MV}=\frac{k}{n}.
+$$
+
+A segunda derivada é negativa para \(0<k<n\), confirmando máximo interior. Para \(k=0\) ou \(k=n\), o máximo ocorre na fronteira \(p=0\) ou \(p=1\), respectivamente. No exemplo, \(\hat p_{MV}=64/100=0{,}64\).
+
+**Verossimilhança não é probabilidade posterior.** \(L(p;\mathbf y)\) não é, por si só, uma distribuição de probabilidade normalizada sobre \(p\). A inferência bayesiana adiciona uma distribuição a priori e aplica Bayes; essa etapa será estudada na Aula 7.
+
+# Laboratório R reproduzível
+
+A amostra versionada em \`dados/amostras/aula_03/observacoes_ficticias.csv\` contém exatamente 100 linhas, 64 sucessos e 36 insucessos. Foi criada deterministicamente para fins pedagógicos; não provém de pesquisa oficial. O arquivo \`exercicios_03.R\` executa a análise **diretamente sobre o CSV**, sem depender do script de preparação.
+
+~~~{r}
+dados <- read.csv("dados/amostras/aula_03/observacoes_ficticias.csv")
+stopifnot(nrow(dados) == 100L, all(dados$formal %in% 0:1))
+y <- dados$formal
+n <- length(y)
+phat <- mean(y)
+ep <- sqrt(phat * (1 - phat) / n)
+ic_wald <- phat + c(-1, 1) * qnorm(0.975) * ep
+set.seed(20261106)
+B <- 5000L
+replicas <- replicate(B, mean(sample(y, n, replace = TRUE)))
+ep_boot <- sd(replicas)
+ic_boot <- quantile(replicas, c(0.025, 0.975))
+loglik <- function(p) {
+  if (p <= 0 || p >= 1) return(-Inf)
+  sum(dbinom(y, size = 1, prob = p, log = TRUE))
+}
+mv <- optimize(loglik, interval = c(0.001, 0.999), maximum = TRUE)
+print(list(proporcao = phat, erro_padrao = ep,
+           ic_wald = ic_wald, ep_boot = ep_boot,
+           ic_boot = ic_boot, mle = mv$maximum))
+sessionInfo()
+~~~
+
+O uso de \`set.seed()\` torna a sequência de reamostragens reproduzível na mesma implementação de R. A aproximação bootstrap varia com \(B\) e com o gerador; o valor de máxima verossimilhança obtido numericamente deve ficar próximo de 0,64. O método \`optimize()\` busca o máximo da função em um intervalo, sem exigir álgebra simbólica.
+
+# Estudo crítico: o que a inferência pode — e não pode — concluir?
+
+Imagine uma pesquisa sobre remuneração em estabelecimentos vinculados a instrumentos da NIB. Uma amostra de 100 firmas beneficiárias mostra média salarial superior à de 100 não beneficiárias e um intervalo de confiança estreito para a diferença. A conclusão de que **o financiamento causou** o aumento salarial seria prematura.
+
+Primeiro, as firmas podem ter sido selecionadas por porte, produtividade, capacidade de inovação e acesso a crédito. Segundo, o estimando pode ser uma média por estabelecimento, enquanto o interesse substantivo é a remuneração média **por trabalhador**; essas médias têm pesos diferentes. Terceiro, uma amostra de firmas cadastradas não representa automaticamente todos os estabelecimentos brasileiros. Quarto, a precisão estatística do contraste não resolve o problema de identificação causal.
+
+Na agenda alternativa de PcD e tecnologias assistivas, uma pesquisa com usuários de um serviço de reabilitação pode estimar com precisão a proporção de pessoas empregadas **entre os respondentes**. Não pode inferir a taxa nacional de emprego de PcD sem desenho de seleção apropriado. Também não demonstra o efeito causal do serviço sem comparação identificável.
+
+Classificação das afirmações: proporção observada (**descritiva**); previsão de permanência (**preditiva**); efeito da concessão de um serviço (**causal**, se identificado); resultados de regras artificiais de contratação (**simulação de mecanismos**). Semelhança textual de projetos com missões industriais não é nenhum desses efeitos.
+
+# Exercícios graduais
+
+1. Explique a diferença entre estimando, estimador e estimativa para a proporção de trabalhadores formais.
+2. Em amostra i.i.d. fictícia com 81 sucessos em 150 observações, calcule proporção, erro-padrão e IC de Wald de 95%.
+3. Se \(n\) passa de 100 para 400, como varia o erro-padrão sob variância constante? E se a amostra for enviesada?
+4. Execute o bootstrap do laboratório com \(B=1000\) e \(B=5000\); compare os erros-padrão e intervalos e explique as diferenças.
+5. Derive o estimador de máxima verossimilhança Bernoulli e discuta o caso de todos os valores iguais a 1.
+6. Critique um relatório que usa 200 estabelecimentos voluntários para inferir a formalização nacional, sem pesos ou plano de seleção.
+
+As soluções comentadas, com cálculo intermediário e interpretação, estão em \`resolucoes_03.qmd\`. Resolva antes de consultar.
+
+# Plano de estudo — sexta-feira, 06/11
+
+**Sessão 1 (60 min):** releia o estimando da Aula 1; diferencie população finita, superpopulação, desenho amostral, estimador e viés. Construa exemplos sobre PcD e inovação.
+
+**Sessão 2 (60 min):** derive variância da média e erro-padrão; refaça o exemplo de 64/100 à mão. Diferencie desvio-padrão individual e erro-padrão.
+
+**Sessão 3 (60 min):** execute o script R, compare IC de Wald e bootstrap, examine o log da verossimilhança.
+
+**Sessão 4 (opcional, 60 min):** leia Imai, capítulo 7, seções 7.1.1–7.1.3, e Morettin e Bussab, capítulo 11; anote dúvidas.
+
+# Plano de estudo — sábado, 07/11
+
+**Sessão 1 (60 min):** resolva exercícios 1–3 sem consultar o gabarito.
+
+**Sessão 2 (60 min):** resolva exercícios 4–5, altere sementes e \(B\), compare resultados.
+
+**Sessão 3 (60 min):** resolva exercício 6 e produza a nota de amostragem do projeto integrador.
+
+**Sessão 4 (opcional, 60 min):** leia Wooldridge, apêndice C, tópicos sobre amostragem, estimadores e intervalos; revise limites de validade.
+
+**Domingo livre.** A próxima aula, em 09/11, utilizará essas bases para regressão linear e logística; não é necessário antecipá-la.
+
+# Entrega cumulativa
+
+Produza \`projeto_integrador/semana_01/nota_amostragem.md\` com: pergunta, população-alvo, unidade, estimando, quadro de amostragem possível, método de seleção, fontes oficiais candidatas, limitações de cobertura, plano de estimação e cálculo de incerteza. Na agenda principal, pense em vínculos formais, estabelecimentos e instrumentos industriais. Na alternativa, pense em população PcD, uso de tecnologia assistiva e condições de trabalho. O relatório final poderá empregar bases oficiais completas, obtidas sob demanda, respeitando pesos e desenho amostral; não é exigido download agora.
+
+# Leituras orientadas e bibliografia
+
+- Imai, Kosuke. *Quantitative Social Science: An Introduction* (2018), capítulo 7, especialmente seção 7.1.3 (intervalos de confiança) e seção 6.4.2 (teorema central do limite). Conteúdo localizado na biblioteca do projeto.
+- Morettin, Pedro A.; Bussab, Wilton O. *Estatística Básica* (2010), capítulo 11 (estimação e intervalos de confiança). Conteúdo localizado na biblioteca.
+- Wooldridge, Jeffrey M. *Introductory Econometrics: A Modern Approach* (2012), apêndice C, sobre inferência, amostragem, erro-padrão e intervalos. Conteúdo localizado na biblioteca.
+- Complementar: consultar em Imai as seções de estimadores e amostragem no capítulo 7. Não se atribuem páginas ou seções adicionais sem conferência.
+
+Estas leituras apresentam as propriedades de estimadores sob hipóteses explícitas. Ao aplicá-las, anote sempre se o argumento se baseia em amostragem probabilística, modelo estocástico ou aproximação assintótica.
