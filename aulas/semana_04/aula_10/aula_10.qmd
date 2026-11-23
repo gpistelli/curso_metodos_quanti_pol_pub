@@ -1,0 +1,165 @@
+---
+title: "Aula 10/18 — Análise geométrica de dados e análise de correspondências múltiplas"
+date: 2026-11-23
+lang: pt-BR
+format: html
+execute:
+  eval: false
+---
+
+# 1. Pergunta, motivação e posição epistemológica
+
+**Segunda-feira, 23/11/2026; consolidação terça-feira, 24/11/2026.** Como representar a estrutura relacional das posições ocupacionais brasileiras sem reduzir qualidade e inclusão do emprego a um único indicador arbitrário? Uma pessoa pode ter carteira assinada, salário relativamente baixo e acesso a treinamento; outra pode apresentar remuneração superior, mas insegurança contratual e barreiras de acessibilidade. Empresas em setores potencialmente alcançados pela Nova Indústria Brasil (NIB) também podem combinar inovação, qualificação e estabilidade de maneiras distintas. A análise geométrica de dados transforma perfis categóricos em posições relativas num espaço de poucas dimensões. Na alternativa PcD/tecnologias assistivas, interessa mapear configurações de barreiras, adaptações, serviços e inserção ocupacional — sem pressupor que tecnologias assistivas se resumam a produtos.
+
+**Natureza da evidência:** a ACM é predominantemente **descritiva/exploratória**. Uma posição no mapa não é previsão validada, efeito causal de uma política, trajetória temporal ou simulação de mecanismos. A associação geométrica entre financiamento industrial e emprego de qualidade não demonstra efeito da NIB. Categorias derivadas de textos de políticas não medem, automaticamente, alinhamento semântico ou implementação.
+
+**Objetivos (sete):** (1) formular uma pergunta relacional e selecionar variáveis ativas; (2) construir tabela disjuntiva completa e matriz de Burt; (3) compreender perfis, massas, distância qui-quadrado e inércia; (4) interpretar eixos, coordenadas, contribuições e qualidade de representação; (5) distinguir variáveis ativas de suplementares; (6) executar ACM reproduzível em R e testar sensibilidade a categorias raras; (7) delimitar validade substantiva, limites inferenciais e integração ao projeto final.
+
+# 2. Do espaço social à geometria estatística
+
+Na tradição de análise relacional, as unidades são interpretadas por suas posições e oposições em um sistema de diferenças. Uma tabela isolada descreve uma associação por vez; a ACM examina simultaneamente várias variáveis categóricas. A unidade analítica pode ser trabalhador, estabelecimento ou município, mas misturar níveis gera inferências inválidas. Para o projeto final, a pergunta exploratória é: *quais combinações de qualificação, estabilidade, remuneração e proteção caracterizam posições ocupacionais distintas, e como se distribuem por setor e exposição a políticas industriais?* A variável de exposição à política será inicialmente **suplementar**, não definirá a geometria.
+
+Uma decisão crucial precede qualquer álgebra: a definição substantiva das categorias. Dicotomizar salário em “alto” e “baixo” exige um limiar justificável, documentado e testado em sensibilidade. Categorias de tecnologia assistiva devem contemplar produtos, serviços, adaptações e apoio, não pressupor exclusividade entre eles. Ausência de informação não é ausência do recurso. Não transformar automaticamente “não respondeu” em categoria substantiva ativa.
+
+# 3. Codificação disjuntiva completa
+
+Sejam $n$ unidades e $Q$ variáveis categóricas ativas, com $K_q$ modalidades na variável $q$. O número total de modalidades é $K=\sum_{q=1}^Q K_q$. A matriz indicadora $Z$ tem dimensão $n\times K$, com $z_{ik}=1$ quando a unidade $i$ pertence à modalidade $k$, e zero caso contrário. Cada linha possui exatamente $Q$ valores iguais a um; logo $\sum_k z_{ik}=Q$. Por exemplo, para duas variáveis binárias, “vínculo” (formal/informal) e “qualificação” (alta/baixa), uma pessoa formal e altamente qualificada corresponde à linha $(1,0,1,0)$.
+
+A matriz de Burt $C=Z^\top Z$ reúne todas as tabulações cruzadas, inclusive as diagonais. $Z^\top$ é a transposta de $Z$. A ACM pode ser construída a partir da análise de correspondências da matriz indicadora ou da matriz de Burt, mas **as inércias e escalas não devem ser confundidas**: as formulações têm relações matemáticas específicas e podem apresentar diferentes representações. Aqui usaremos a matriz indicadora.
+
+# 4. Perfis, massas e distância qui-quadrado
+
+Normalize $Z$ pela soma de todas as entradas: $N=Z/(nQ)$. Defina a massa da linha $r_i=\sum_k N_{ik}=1/n$ e a massa da coluna $c_k=\sum_i N_{ik}$, isto é, a frequência relativa da modalidade $k$ dividida por $Q$. As massas somam um em cada margem. O perfil da linha $i$ é $N_{ik}/r_i=z_{ik}/Q$; o perfil médio é $c_k$.
+
+A distância qui-quadrado entre dois perfis de indivíduos é
+
+$$
+d^2(i,j)=\sum_{k=1}^{K}\frac{(N_{ik}/r_i-N_{jk}/r_j)^2}{c_k}.
+$$
+
+Cada termo é ponderado pelo inverso da massa da modalidade. **Categorias raras têm grande influência potencial** nas distâncias, motivo para inspecionar frequências e justificar agrupamentos ou modalidades passivas. A distância não representa uma medida natural de desigualdade econômica: ela depende da codificação, do conjunto de variáveis e das frequências amostrais.
+
+## Exemplo numérico integral
+
+Quatro unidades, duas variáveis binárias, com linhas:
+
+- A: formal, qualificação alta;
+- B: formal, qualificação baixa;
+- C: informal, qualificação baixa;
+- D: informal, qualificação alta.
+
+Na ordem (formal, informal, alta, baixa), $Z$ é
+
+$$
+Z=\begin{pmatrix}
+1&0&1&0\\
+1&0&0&1\\
+0&1&0&1\\
+0&1&1&0
+\end{pmatrix}.
+$$
+
+Temos $n=4$, $Q=2$, $K=4$ e todas as modalidades ocorrem duas vezes. Assim, $c_k=2/(4\cdot2)=1/4$ para cada $k$. O perfil de A é $(1/2,0,1/2,0)$ e o de B é $(1/2,0,0,1/2)$. Logo,
+
+$$
+d^2(A,B)=\frac{(1/2)^2}{1/4}+\frac{(-1/2)^2}{1/4}=2,
+\qquad d(A,B)=\sqrt{2}\approx1{,}414.
+$$
+
+A e B diferem somente na qualificação. A e C diferem em ambas as variáveis: $d^2(A,C)=4$, portanto $d(A,C)=2$. O cálculo mostra como o espaço preserva diferenças de perfis **dadas as variáveis escolhidas**, não que A e C sejam duas vezes mais distantes em bem-estar.
+
+# 5. Inércia, decomposição singular e eixos
+
+A matriz de resíduos padronizados é
+
+$$
+S=D_r^{-1/2}(N-rc^\top)D_c^{-1/2},
+$$
+
+onde $r$ e $c$ são vetores de massas e $D_r$, $D_c$ são matrizes diagonais dessas massas. O produto $rc^\top$ representa a tabela esperada sob independência entre linhas e modalidades na construção geométrica; $D^{-1/2}$ indica a inversa da raiz quadrada dos elementos diagonais.
+
+A decomposição em valores singulares é $S=U\Sigma V^\top$, com colunas ortonormais de $U$ e $V$ e valores singulares $\sigma_\ell$ na diagonal de $\Sigma$. A inércia principal do eixo $\ell$ é $\lambda_\ell=\sigma_\ell^2$. A inércia total é $\sum_\ell\lambda_\ell=\sum_{ik}S_{ik}^2$. Na ACM padrão com tabela disjuntiva completa, a inércia total é $K/Q-1$ (sob codificação completa sem categorias vazias). Essa inércia não equivale à variância explicada de uma regressão nem a uma medida de ajuste causal.
+
+As coordenadas principais das linhas são $F=D_r^{-1/2}U\Sigma$; as das colunas são $G=D_c^{-1/2}V\Sigma$. O primeiro eixo maximiza a inércia capturada sujeito às restrições geométricas; o segundo captura a maior inércia residual ortogonal ao primeiro. A orientação do sinal é arbitrária: inverter simultaneamente os sinais de um eixo não altera a interpretação. A escolha de dois eixos é uma aproximação; eixos adicionais podem conter diferenças substantivamente relevantes.
+
+# 6. Como interpretar corretamente o mapa
+
+Não nomeie um eixo apenas pela categoria mais distante da origem. Examine **contribuições** e **qualidade de representação**. A contribuição de uma modalidade $k$ para o eixo $\ell$ pode ser escrita
+
+$$
+\operatorname{ctr}_{k\ell}=\frac{c_kG_{k\ell}^{2}}{\lambda_\ell},
+$$
+
+em que $c_k$ é sua massa, $G_{k\ell}$ sua coordenada principal e $\lambda_\ell$ a inércia do eixo. As contribuições das modalidades somam um em cada eixo. A qualidade de representação (*cos²*) é, para a modalidade $k$, a razão entre o quadrado da coordenada no eixo e a distância quadrática total da modalidade à origem (considerando todos os eixos não triviais). Uma categoria distante, porém com massa ínfima, pode parecer visualmente decisiva; uma categoria mal representada no plano não deve sustentar a narrativa do mapa.
+
+**Cuidado com distâncias:** a proximidade entre pontos da **mesma nuvem**, sob escala coerente, é interpretável geometricamente. Distâncias diretas entre ponto de indivíduo e ponto de modalidade em um biplot misto não devem ser lidas como distâncias euclidianas ordinárias sem verificar a normalização. Posições próximas de modalidades sugerem perfis, não relações causais. Verifique o percentual de inércia exibido e não trate uma projeção bidimensional como retrato completo.
+
+# 7. Variáveis ativas, suplementares e validação
+
+As variáveis **ativas** determinam a geometria. As **suplementares** são projetadas ou resumidas após o ajuste, sem determinar os eixos. Essa separação é crucial quando queremos caracterizar um espaço de qualidade do emprego e depois examinar diferenças por setor, sexo, condição de deficiência ou exposição a financiamento da NIB. A projeção suplementar não neutraliza viés de seleção nem identifica efeito de tratamento.
+
+Categorias raras merecem diagnóstico; agrupar modalidades pode aumentar estabilidade, mas pode apagar situações substantivamente importantes, como deficiências pouco frequentes ou tipos específicos de apoio. Faça análise de sensibilidade: redefina limiares de remuneração, altere conjuntos de variáveis ativas, inspecione massas, contribuições, cos² e estabilidade qualitativa dos eixos. Em dados amostrais complexos, pesos e desenho não podem ser ignorados na inferência populacional; o laboratório sintético **não** permite extrapolação ao Brasil.
+
+A ACM não estima trajetórias, ao contrário da Aula 9. Também não é, por si só, um classificador preditivo. Ela pode gerar coordenadas como entradas para modelos posteriores, mas isso exige validação externa e prevenção de vazamento de dados. A geometria exploratória tampouco é uma simulação de mecanismos sociais.
+
+# 8. Laboratório R reproduzível
+
+A amostra sintética publicada contém 16 perfis categóricos deliberadamente variados e não representa indivíduos reais. O script usa **R base**, lê o CSV versionado, monta a matriz disjuntiva, calcula massas, SVD, coordenadas, contribuições, cos², um gráfico e projeção descritiva de grupos suplementares. A SVD sobre $S$ evita dependências de pacotes e torna visíveis as operações matemáticas. Execute a partir da raiz do repositório:
+
+~~~r
+source("aulas/semana_04/aula_10/exercicios_10.R")
+~~~
+
+Trecho essencial:
+
+~~~r
+d <- read.csv("dados/amostras/aula_10/perfis_sinteticos.csv",
+              stringsAsFactors = FALSE)
+ativas <- c("vinculo", "qualificacao", "remuneracao")
+Z <- model.matrix(~ 0 + vinculo + qualificacao + remuneracao,
+                  data = transform(d, vinculo = factor(vinculo),
+                                   qualificacao = factor(qualificacao),
+                                   remuneracao = factor(remuneracao)))
+N <- Z / sum(Z)
+r <- rowSums(N); c <- colSums(N)
+S <- sweep(sweep(N - outer(r,c), 1, sqrt(r), "/"), 2, sqrt(c), "/")
+sv <- svd(S)
+lambda <- sv$d^2
+~~~
+
+**Nota de implementação:** o script integral constrói a matriz disjuntiva variável a variável para garantir explicitamente uma coluna por modalidade, evitando ambiguidades de contrastes no uso de fórmulas de modelos. Os valores singulares próximos de zero são descartados antes dos cálculos de cos². A ordem de categorias, versões e transformações estão documentadas no manifesto.
+
+# 9. Estudo crítico de política pública
+
+Um relatório apresenta um mapa de ACM de estabelecimentos e observa que categorias de inovação, salários altos e financiamento público aparecem no mesmo lado do primeiro eixo. Conclui que a NIB elevou a qualidade do emprego. O raciocínio é inadequado por quatro razões. Primeiro, a ACM organiza coocorrências, não resultados potenciais. Segundo, financiamento pode ser seletivo: empresas mais produtivas ou com melhores empregos podem ter maior probabilidade de acesso. Terceiro, as variáveis podem medir períodos e unidades distintos. Quarto, uma categoria suplementar próxima a outras categorias não equivale a um coeficiente de efeito. Um desenho causal exigiria tratamento bem definido, população elegível, contrafactual e hipóteses de identificação (por exemplo, uma estratégia DiD cuidadosamente justificada). Uma aplicação legítima da ACM seria mapear heterogeneidade de perfis **antes** de formular hipóteses e desenhos causais.
+
+Na alternativa PcD, o risco adicional é confundir a utilização de tecnologia assistiva com capacidade funcional ou inclusão: o uso pode ser resposta a barreiras mais intensas, e a ausência de equipamento não significa ausência de necessidade. Variáveis devem distinguir produtos, serviços, adaptações ambientais e condições de acesso.
+
+# 10. Exercícios graduais
+
+1. **Codificação:** para quatro indivíduos e duas variáveis binárias, escreva a matriz disjuntiva completa e confira a soma de cada linha.
+2. **Distância:** usando o exemplo da seção 4, calcule $d(A,C)$ e explique o papel das massas.
+3. **Inércia:** com $Q=3$ variáveis ativas e $K=6$ modalidades não vazias, determine a inércia total padrão da ACM indicadora.
+4. **Contribuições:** explique por que uma modalidade com coordenada extrema pode não dominar um eixo; diferencie contribuição de cos².
+5. **Projeto:** proponha três variáveis ativas de qualidade do emprego e duas suplementares para a NIB, justificando a distinção.
+6. **Crítica:** explique por que proximidade de financiamento e remuneração no mapa não identifica o efeito causal do financiamento; proponha verificação de robustez.
+
+As soluções estão em "resolucoes_10.qmd"; resolva antes de consultar.
+
+# 11. Organização das sessões de 60 minutos
+
+**Segunda-feira, 23/11:** (1) pergunta relacional, espaço social, unidade de análise e codificação; (2) perfis, massas, distância qui-quadrado e exemplo resolvido; (3) SVD, inércia, contribuições, cos² e execução do laboratório; (4, opcional) leitura orientada de Greenacre, capítulos 2, 11 e 18.
+
+**Terça-feira, 24/11:** (1) exercícios 1–3, cálculos manuais e conferência em R; (2) exercícios 4–5, interpretação de eixos e sensibilidade às categorias; (3) exercício 6, estudo crítico e redação do protocolo cumulativo; (4, opcional) leitura de Bertoncelo, capítulo 1, e auditoria do manifesto. Domingo permanece livre.
+
+# 12. Leituras e conexões
+
+**Biblioteca consultada:** Michael Greenacre, *Correspondence Analysis in Practice* (2017), capítulos 2 (*Profiles and the Profile Space*), 11 (*Contributions to Inertia*), 12 (*Supplementary Points*), 18 (*Multiple Correspondence Analysis*), 19 (*Joint Correspondence Analysis*) e 20 (*Scaling Properties of MCA*), títulos verificáveis no sumário do arquivo da biblioteca. Para uma primeira leitura, priorize capítulos 11, 12 e 18. **Bertoncelo**, *Construindo espaços relacionais* (2022), capítulo 1, *Análise de correspondências múltiplas: construindo e interpretando a nuvem de modalidades*, e capítulo 2, *Análise de dados estruturados*, identificados no sumário. A obra discute modalidades passivas e suplementares e os riscos de categorias raras. Não foram atribuídas páginas de outros arquivos não consultados.
+
+**Conexão:** as Aulas 7–8 abordaram posterior e MCMC; a Aula 9 examinou trajetórias temporais observadas/latentes. A ACM organiza diferenças **entre perfis**, não substitui essas ferramentas. A Aula 11 examinará relações **entre atores** por meio de redes; coordenadas geométricas e laços de rede são objetos distintos.
+
+# 13. Entrega cumulativa e protocolo de dados
+
+Entregar "projeto_integrador/semana_04/protocolo_acm_10.md" contendo pergunta, unidade, população-alvo futura, variáveis ativas/suplementares, justificativa de categorias, indicadores de massa/contribuição/cos², sensibilidade e uma seção explícita sobre limites causais. O laboratório usa apenas "dados/amostras/aula_10/perfis_sinteticos.csv" e não exige execução do gerador. O manifesto identifica origem **sintética**, semente, dicionário, transformações, versão e limitações; não há URL de microdados reais porque nenhuma observação real foi utilizada.
+
+Para o relatório final, fontes oficiais candidatas devem ser verificadas quanto a unidade e estimando: microdados PNAD Contínua quando forem necessárias características individuais, com pesos e desenho amostral; registros administrativos de emprego e dados de financiamento/inovação quando forem necessários vínculos entre estabelecimentos e políticas. Agregados por API são adequados apenas a estimandos agregados compatíveis; não substituem microdados individuais. Bases completas ficam reservadas ao projeto final, sem download nesta aula.
