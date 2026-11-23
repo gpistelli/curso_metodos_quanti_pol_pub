@@ -1,0 +1,40 @@
+---
+title: "Aula 10/18 — Resoluções comentadas"
+date: 2026-11-23
+lang: pt-BR
+format: html
+---
+
+# Exercício 1 — Codificação
+
+Na ordem formal, informal, alta, baixa, para os indivíduos A, B, C, D definidos na aula:
+
+$$
+Z=\begin{pmatrix}1&0&1&0\\1&0&0&1\\0&1&0&1\\0&1&1&0\end{pmatrix}.
+$$
+
+Cada linha soma $Q=2$. Se a soma não for igual ao número de variáveis ativas, há erro de codificação ou dados faltantes não tratados.
+
+# Exercício 2 — Distância qui-quadrado
+
+A tem perfil $(1/2,0,1/2,0)$ e C tem perfil $(0,1/2,0,1/2)$. As quatro massas são $1/4$; cada uma das quatro diferenças quadráticas contribui $(1/2)^2/(1/4)=1$. Logo $d^2(A,C)=4$ e $d(A,C)=2$. Modalidades raras possuem massa menor e peso inverso maior na distância.
+
+# Exercício 3 — Inércia total
+
+Para a ACM indicadora padrão, $I=K/Q-1=6/3-1=1$. A identidade depende da codificação disjuntiva completa e da ausência de modalidades vazias; não é uma proporção de variância explicada por um modelo causal.
+
+# Exercício 4 — Contribuição e cos²
+
+A contribuição $\mathrm{ctr}_{k\ell}=c_k G_{k\ell}^2/\lambda_\ell$ mede quanto a modalidade pesa na construção do eixo; uma coordenada extrema com massa muito baixa pode ter contribuição limitada. O cos² compara $G_{k\ell}^2$ à distância quadrática total da modalidade à origem, indicando qualidade de representação no eixo. Não são métricas intercambiáveis. Interpretar sempre com massa e contexto.
+
+# Exercício 5 — Desenho de ACM
+
+Exemplo: variáveis ativas: vínculo (formal/informal), remuneração (faixas justificadas), qualificação (categorias de escolaridade/treinamento). Suplementares: setor de atividade e elegibilidade/exposição a instrumento industrial. Assim, o mapa é definido por qualidade ocupacional, não pela exposição que pretendemos comparar. Para PcD, adaptar a codificação com acessibilidade e serviços, observando sigilo e categorias raras. Não inferir efeito causal a partir da projeção suplementar.
+
+# Exercício 6 — Crítica e robustez
+
+A proximidade geométrica é uma associação descritiva sujeita a seleção, confundimento e escolhas de codificação; não representa diferença contrafactual. Verificar sensibilidade a limiares de remuneração, remoção de modalidades raras e conjuntos alternativos de variáveis ativas; inspecionar contribuição e cos². Para estimar efeito da política, formular tratamento, desfecho, população, estratégia de identificação e testes de robustez causais separados.
+
+# Nota de reprodução
+
+O script "exercicios_10.R" lê "dados/amostras/aula_10/perfis_sinteticos.csv" diretamente, sem executar gerador. A amostra é sintética e não fornece estimativas populacionais.
