@@ -1,0 +1,3 @@
+variavel,tipo,descricao
+id,inteiro,Identificador ficticio de 1 a 20
+sucesso,inteiro binario,Indicador ficticio 0 ou 1 sem referente empirico

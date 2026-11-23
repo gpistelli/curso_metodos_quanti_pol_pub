@@ -1,0 +1,11 @@
+# Manifesto — Aula 09
+- Natureza: dados inteiramente sintéticos, não representam observações reais, sem URL de fonte externa.
+- Criado em: 2026-11-20 (America/Sao_Paulo); versão 1.
+- Unidade: sequência artificial única de 12 observações binárias; não há pessoas identificadas.
+- Arquivo publicado: observacoes_sinteticas.csv; colunas tempo e observado.
+- Construção: sequência fixa declarada no gerador opcional gerar_09.R; semente fixa 20261120 (não afeta sequência determinística).
+- Transformações: nenhuma; observações 0/1 representam indicador hipotético desfavorável/favorável.
+- Parâmetros didáticos: P=[[0.8,0.2],[0.3,0.7]], E=[[0.9,0.1],[0.2,0.8]], delta=(0.6,0.4).
+- Pacotes: R base; não há dependências externas.
+- Limitações: valores inventados para ensino; sem inferência populacional, sem validação empírica, sem interpretação causal.
+- Bases oficiais completas: somente no projeto final, com fontes, datas, pesos e desenho pertinentes.

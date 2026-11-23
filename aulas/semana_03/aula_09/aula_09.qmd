@@ -1,0 +1,226 @@
+---
+title: "Aula 9/18 — Cadeias de Markov e modelos ocultos de Markov"
+date: 2026-11-20
+lang: pt-BR
+format: html
+execute:
+  eval: false
+---
+
+# 1. Motivação: trajetórias produtivas e inclusão laboral
+
+**Sexta-feira, 20/11/2026; consolidação sábado, 21/11/2026.** A pergunta central é como representar transições entre situações ao longo do tempo, distinguindo estados diretamente observados de estados substantivos não observados. Uma política industrial orientada por missões pode estar associada a mudanças na composição dos empregos: trabalhadores passam de ocupações de baixa qualidade para postos de melhor remuneração, estabilidade e proteção, ou seguem o caminho inverso. A alternativa de pesquisa sobre pessoas com deficiência (PcD) e tecnologias assistivas pode estudar transições entre desemprego, emprego com barreiras e emprego com suporte adequado.
+
+**Classificação epistemológica:** estimar frequências e probabilidades de transição é **descritivo**; prever o próximo estado é **preditivo**; simular trajetórias sob uma matriz fixada é **simulação de mecanismos probabilísticos estilizados**, não comprovação de mecanismos reais; atribuir transições a uma política é **causal** e exige identificação adicional. Uma cadeia de Markov usada como modelo substantivo de mobilidade é diferente da cadeia artificial usada na Aula 8 para amostrar uma distribuição posterior.
+
+**Objetivos (sete):** (1) definir estados, tempos e hipótese de Markov; (2) construir matrizes estocásticas e calcular transições em múltiplos passos; (3) interpretar distribuição inicial e estacionária; (4) reconhecer limitações de homogeneidade, agregação e seleção; (5) definir estados latentes, emissões e transições em HMM; (6) calcular a verossimilhança e probabilidades filtradas pelo algoritmo forward; (7) construir análise reproduzível em R e explicitar o que seria necessário para uma avaliação causal.
+
+# 2. Cadeias de Markov observáveis
+
+Considere uma variável discreta $X_t$ que identifica o estado de uma unidade no instante $t$. Para dois estados, $B$ (emprego de baixa qualidade) e $Q$ (emprego de qualidade), a propriedade de Markov de primeira ordem é:
+
+$$
+P(X_{t+1}=j\mid X_t=i,X_{t-1},\ldots,X_0)
+=P(X_{t+1}=j\mid X_t=i).
+$$
+
+Aqui $i$ e $j$ indicam estados; $P(\cdot)$ é probabilidade condicional. A hipótese diz que o presente contém a informação relevante do passado **para prever o próximo estado dentro do modelo**. Não afirma que a história social seja irrelevante: duração do desemprego, trajetórias educacionais e experiências de discriminação podem exigir estados enriquecidos, dependência de ordem superior ou modelos semi-Markov.
+
+Definimos a matriz de transição homogênea $P$, com linhas de origem e colunas de destino:
+
+$$
+P=\begin{pmatrix}
+P_{BB}&P_{BQ}\\
+P_{QB}&P_{QQ}
+\end{pmatrix},
+\qquad
+P_{ij}=P(X_{t+1}=j\mid X_t=i).
+$$
+
+Cada elemento está entre zero e um, e cada linha soma um. A homogeneidade temporal significa que $P$ não varia com $t$; isso é uma hipótese, não um fato. Se $\boldsymbol{\pi}_t$ é um vetor-linha de probabilidades de ocupação dos estados no período $t$, então:
+
+$$
+\boldsymbol{\pi}_{t+1}=\boldsymbol{\pi}_tP,\qquad
+\boldsymbol{\pi}_{t+h}=\boldsymbol{\pi}_tP^h.
+$$
+
+A potência $P^h$ resulta de multiplicação matricial e contém probabilidades de transição em $h$ passos. Não confunda $P^2$ com elevar cada elemento ao quadrado. Por exemplo, $[P^2]_{BQ}=P_{BB}P_{BQ}+P_{BQ}P_{QQ}$, somando caminhos intermediários possíveis.
+
+# 3. Exemplo numérico resolvido
+
+Use uma matriz **inteiramente fictícia**:
+
+$$
+P=\begin{pmatrix}0{,}80&0{,}20\\0{,}30&0{,}70\end{pmatrix}.
+$$
+
+Um trabalhador inicialmente no estado $B$ possui 20% de probabilidade de transitar para $Q$ em um período. Em dois períodos:
+
+$$
+P^2=\begin{pmatrix}
+0{,}70&0{,}30\\
+0{,}45&0{,}55
+\end{pmatrix}.
+$$
+
+Logo, a probabilidade de estar em $Q$ após dois períodos, partindo de $B$, é $0{,}80(0{,}20)+0{,}20(0{,}70)=0{,}30$. Uma pessoa que começa em $Q$ tem 55% de probabilidade de estar em $Q$ após dois períodos. Esses valores são probabilidades **condicionais ao modelo**, não taxas reais do mercado de trabalho brasileiro.
+
+A distribuição estacionária $\boldsymbol{\pi}^*$ satisfaz:
+
+$$
+\boldsymbol{\pi}^*P=\boldsymbol{\pi}^*,\qquad
+\pi_B^*+\pi_Q^*=1.
+$$
+
+O fluxo de $B$ para $Q$ em equilíbrio deve igualar o fluxo reverso:
+
+$$
+0{,}20\pi_B^*=0{,}30\pi_Q^*.
+$$
+
+Daí $\pi_B^*=0{,}60$ e $\pi_Q^*=0{,}40$. Sob esta cadeia finita, irredutível e aperiódica, as distribuições convergem para essa solução independentemente do estado inicial. **Equilíbrio matemático não implica equilíbrio econômico desejável**, nem descreve uma sociedade estática: indivíduos continuam transitando.
+
+# 4. Estimação de transições observadas
+
+Quando os estados são observados em painéis, contamos transições $n_{ij}$ entre estados de origem $i$ e destino $j$. Sob uma cadeia homogênea, observação adequada e amostragem compatível, a estimativa de máxima verossimilhança é:
+
+$$
+\widehat P_{ij}=\frac{n_{ij}}{\sum_k n_{ik}}.
+$$
+
+O denominador é o total de transições que partiram de $i$. Esse estimador é indefinido para uma origem sem observações; não devemos inventar transições. Em dados reais, perdas de acompanhamento, censura, pesos amostrais, mudança de composição e erro de classificação podem alterar a interpretação. Não trate proporções de agregados municipais em anos distintos como trajetórias individuais. Para transições de trabalhadores, são necessários registros longitudinais individuais ou vínculos identificáveis, respeitando confidencialidade e desenho de coleta.
+
+A matriz estimada descreve associações temporais. Não identifica o efeito de financiamento industrial, de um serviço de tecnologia assistiva ou de uma missão da NIB: tratamento pode ser selecionado e afetar também a permanência na amostra.
+
+# 5. HMM: estados latentes e observações imperfeitas
+
+Em muitos problemas, o estado substantivo não é observado diretamente. A qualidade efetiva do emprego pode depender de estabilidade, proteção, acessibilidade e perspectivas de carreira, enquanto os registros disponíveis contêm indicadores incompletos. Um **modelo oculto de Markov** (HMM) introduz:
+
+- $S_t$: estado latente, por exemplo $B$ ou $Q$;
+- $O_t$: observação ou indicador mensurado no período $t$;
+- $\boldsymbol{\delta}$: distribuição inicial dos estados latentes;
+- $A_{ij}=P(S_{t+1}=j\mid S_t=i)$: matriz de transição latente;
+- $B_{jk}=P(O_t=k\mid S_t=j)$: matriz de emissão.
+
+As linhas de $A$ e $B$ somam um. A notação $A$ aqui indica matriz de transição, não atribuição de tratamento causal. O modelo assume a propriedade de Markov para $S_t$ e independência condicional das observações: dado $S_t$, $O_t$ não depende diretamente de outros estados ou observações. Na prática, essa independência pode falhar se os indicadores carregarem dependência temporal residual.
+
+A distribuição conjunta de estados e observações para uma trajetória de comprimento $T$ é:
+
+$$
+P(s_{1:T},o_{1:T})=
+\delta_{s_1}B_{s_1,o_1}
+\prod_{t=2}^{T}A_{s_{t-1},s_t}B_{s_t,o_t}.
+$$
+
+O símbolo $\prod$ indica produto sobre os períodos; $s_{1:T}$ e $o_{1:T}$ são sequências. Para obter a probabilidade das observações, somamos a expressão sobre todas as sequências latentes possíveis. A enumeração cresce exponencialmente; o algoritmo forward organiza essa soma por recursão.
+
+# 6. Filtragem forward passo a passo
+
+Defina $\alpha_t(j)=P(O_1=o_1,\ldots,O_t=o_t,S_t=j)$, uma probabilidade conjunta **não normalizada**. A inicialização é:
+
+$$
+\alpha_1(j)=\delta_j B_{j,o_1}.
+$$
+
+A recursão é:
+
+$$
+\alpha_t(j)=B_{j,o_t}\sum_i\alpha_{t-1}(i)A_{ij}.
+$$
+
+A verossimilhança da sequência observada é $L=\sum_j\alpha_T(j)$. A probabilidade filtrada de estar no estado $j$ no período $t$ é:
+
+$$
+P(S_t=j\mid O_{1:t})=\frac{\alpha_t(j)}{\sum_k\alpha_t(k)}.
+$$
+
+**Exemplo sintético:** use $\boldsymbol{\delta}=(0{,}6,0{,}4)$, $A=P$ da seção 3 e emissões binárias $O=0$ (indicador desfavorável) e $O=1$ (favorável):
+
+$$
+B=\begin{pmatrix}0{,}9&0{,}1\\0{,}2&0{,}8\end{pmatrix}.
+$$
+
+Observando $O_1=1$, os pesos conjuntos são $(0{,}6\times0{,}1,\ 0{,}4\times0{,}8)=(0{,}06,0{,}32)$. Sua soma é $0{,}38$, e a probabilidade filtrada de $Q$ é $0{,}32/0{,}38\approx0{,}8421$. A evidência observada eleva a probabilidade de $Q$, mas não torna o estado conhecido com certeza.
+
+No passo seguinte, antes de observar $O_2$, a distribuição prevista é $(0{,}1579,0{,}8421)A\approx(0{,}3789,0{,}6211)$. Se $O_2=0$, multiplicamos pelas emissões $(0{,}9,0{,}2)$ e normalizamos: $P(S_2=Q\mid O_1=1,O_2=0)\approx0{,}2671$. O resultado ilustra como uma observação desfavorável altera nossa inferência sobre o estado latente.
+
+Para sequências longas, o produto de probabilidades pode sofrer underflow numérico; usamos escalonamento a cada etapa ou logaritmos. O script publicado implementa a versão escalonada.
+
+# 7. Estimação de parâmetros e identificação
+
+No laboratório, $A$, $B$ e $\boldsymbol{\delta}$ são **fixados para fins didáticos**. Em aplicações reais, podemos estimá-los por máxima verossimilhança, frequentemente com o algoritmo Baum–Welch (uma aplicação de EM), ou por métodos bayesianos. A etapa E calcula probabilidades de estados e transições latentes; a etapa M atualiza os parâmetros para aumentar ou preservar a verossimilhança. EM pode convergir para máximos locais, exigindo múltiplas inicializações.
+
+Os rótulos dos estados latentes são permutáveis: trocar os nomes de $B$ e $Q$ e permutar parâmetros de modo consistente preserva a verossimilhança. É o problema de *label switching*. A interpretação substantiva requer restrições, indicadores externos e validação, não apenas escolher o estado com maior média.
+
+HMM não garante que existam exatamente dois regimes sociais, nem que seus estados correspondam a categorias reais. A escolha do número de estados envolve teoria, comparação preditiva e análise de sensibilidade. Estados muito agregados escondem heterogeneidade; estados demais podem tornar a estimação instável.
+
+# 8. Laboratório reproduzível em R
+
+A análise usa somente R base e um CSV sintético versionado em \`dados/amostras/aula_09/observacoes_sinteticas.csv\`. Os dados são uma trajetória artificial de observações binárias; **não** foram extraídos de bases oficiais e não fundamentam inferências populacionais. O script de geração é opcional, separado, e a semente registrada é \`20261120\`.
+
+~~~r
+d <- read.csv("dados/amostras/aula_09/observacoes_sinteticas.csv")
+stopifnot(identical(d$tempo, seq_len(nrow(d))),
+          all(d$observado %in% 0:1))
+P <- matrix(c(.80,.20,.30,.70), nrow=2, byrow=TRUE)
+E <- matrix(c(.90,.10,.20,.80), nrow=2, byrow=TRUE)
+delta <- c(.60,.40)
+stopifnot(all(abs(rowSums(P)-1)<1e-12),
+          all(abs(rowSums(E)-1)<1e-12))
+print(P %*% P)
+v <- c(1,0)
+for (i in 1:30) v <- as.numeric(v %*% P)
+print(v)
+forward <- function(obs, P, E, delta) {
+  Tn <- length(obs); K <- length(delta)
+  filt <- matrix(NA_real_, Tn, K)
+  scales <- numeric(Tn)
+  z <- delta * E[,obs[1]+1L]
+  scales[1] <- sum(z)
+  stopifnot(scales[1]>0)
+  filt[1,] <- z/scales[1]
+  if (Tn>1) for (t in 2:Tn) {
+    z <- as.numeric(filt[t-1,] %*% P) * E[,obs[t]+1L]
+    scales[t] <- sum(z)
+    stopifnot(scales[t]>0)
+    filt[t,] <- z/scales[t]
+  }
+  list(filtered=filt, logLik=sum(log(scales)))
+}
+fit <- forward(d$observado, P, E, delta)
+print(fit$filtered)
+print(fit$logLik)
+~~~
+
+\`P %*% P\` realiza multiplicação matricial; \`v %*% P\` propaga uma distribuição; \`E[,obs[t]+1L]\` seleciona a coluna da emissão observada (R indexa a partir de 1); \`scales\` armazena fatores de normalização para calcular a log-verossimilhança sem multiplicar probabilidades muito pequenas. As linhas de \`filtered\` são distribuições condicionais que somam um. A versão integral do script contém verificações automáticas do exemplo numérico e comparação entre filtragem e previsão.
+
+# 9. Estudo crítico: inferir "regimes de emprego" não equivale a avaliar a NIB
+
+Considere um estudo hipotético que ajusta um HMM a indicadores de emprego de municípios entre 2015 e 2026. O modelo identifica dois estados latentes e observa aumento da probabilidade do estado de "melhor emprego" após o lançamento da NIB. O relatório afirma que a política provocou uma transição estrutural.
+
+A conclusão causal não é sustentada. Primeiro, os estados foram inferidos de indicadores e podem não representar qualidade efetiva ou inclusão. Segundo, uma mudança posterior pode refletir recuperação econômica, choques setoriais ou tendências anteriores. Terceiro, a implementação e a exposição às missões variam entre empresas e territórios. Quarto, observações municipais agregadas não revelam transições individuais. Quinto, o algoritmo pode mudar a classificação em função de pressupostos de emissão, número de estados e inicializações.
+
+Um estudo **descritivo** pode mapear padrões temporais; um estudo **preditivo** pode prever regimes condicionais; uma avaliação **causal** precisaria definir intervenção, unidades elegíveis, contrafactual e identificação conforme as Aulas 5–6. A alternativa PcD exige ainda reconhecer que "uso de tecnologia assistiva" não é um estado ocupacional, e que acessibilidade, serviço e contexto organizacional não se reduzem a um produto.
+
+# 10. Exercícios graduais (resoluções no arquivo próprio)
+
+1. Verifique as somas das linhas de $P$ e calcule $P^2$, interpretando $[P^2]_{BQ}$.
+2. Resolva $\boldsymbol{\pi}^*P=\boldsymbol{\pi}^*$ e explique por que estacionariedade não significa ausência de mobilidade.
+3. Com 12 transições $B\to B$, 8 $B\to Q$, 3 $Q\to B$ e 7 $Q\to Q$, estime a matriz por frequências e discuta o problema de seleção.
+4. Com $\boldsymbol{\delta}=(.6,.4)$ e $B$ da seção 6, calcule a filtragem de $S_1$ quando $O_1=1$.
+5. Explique o que distingue filtragem $P(S_t\mid O_{1:t})$, suavização $P(S_t\mid O_{1:T})$ e previsão $P(S_{t+h}\mid O_{1:t})$.
+6. Proponha um indicador de emprego para a trilha NIB ou PcD e discuta duas falhas possíveis das hipóteses do HMM e um desenho causal complementar.
+
+# 11. Leituras verificadas e limitações
+
+**Bonacich, Phillip; Lu, Philip (2012), *Introduction to Mathematical Sociology*.** Arquivo localizado na biblioteca. Capítulo 14, **Markov Chains**: *Examples*; *Powers of P, Paths in the Graphs, and Longer Intervals*; *The Markov Assumption: History Does Not Matter*; *Transition Matrices and Equilibrium*; *Exercises*. O índice também confirma os capítulos 7 (*Vectors and Matrices*) e 8 (*Adding and Multiplying Matrices*) como revisão de álgebra. A obra sustenta diretamente a parte de cadeias observáveis, mas **não deve ser apresentada como fonte específica para os algoritmos HMM**. A parte de HMM desta aula é uma derivação didática explicitada nas fórmulas e no código; não foram confirmados capítulos de HMM nas demais obras da biblioteca nesta execução. Não são atribuídas páginas não verificadas.
+
+# 12. Plano de 60 minutos e entrega cumulativa
+
+**Sexta-feira, 20/11:** sessão 1 (60 min), estados e hipótese de Markov; sessão 2 (60 min), matrizes, potências e distribuição estacionária; sessão 3 (60 min), HMM, emissões, filtragem e laboratório; sessão 4 opcional (60 min), leitura do capítulo 14 e reprodução manual do exemplo.
+
+**Sábado, 21/11:** sessão 1 (60 min), exercícios 1–3; sessão 2 (60 min), exercícios 4–5 e diagnóstico do algoritmo; sessão 3 (60 min), exercício 6, estudo crítico e protocolo; sessão 4 opcional (60 min), revisão do código e teste de sensibilidade às emissões. Domingo livre.
+
+Entregar \`projeto_integrador/semana_03/protocolo_markov_09.md\` contendo unidade longitudinal, periodicidade, definição operacional dos estados, matriz e emissões, classificação descritiva/preditiva/causal, pressupostos, ameaças e fonte oficial candidata. O arquivo pode ser elaborado a partir do CSV didático e do script versionado; nenhuma base completa é pré-requisito. No projeto final, dados individuais exigirão microdados longitudinais oficiais e desenho/pesos pertinentes; agregados de APIs não substituem trajetórias individuais. Registrar URLs, data, versão, dicionário, transformação, pacotes, semente e limitações.
+
+**Conexões:** a Aula 8 usou uma cadeia de Markov para amostrar uma posterior; hoje a cadeia representa transições substantivas no tempo. A Aula 7 ensinou incerteza paramétrica, útil caso parâmetros de HMM sejam estimados bayesianamente. As Aulas 5–6 continuam necessárias para causalidade. Na Aula 10, em 23/11, estudaremos espaços relacionais e ACM, outra forma de representar estruturas sociais, sem antecipá-la aqui.
